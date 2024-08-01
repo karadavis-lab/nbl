@@ -1,0 +1,14 @@
+volumes:
+  psql:
+services:
+  psql:
+    image: postgres # this uses the 'latest' version
+    restart: always
+    environment:
+      POSTGRES_USER: srivarra
+      POSTGRES_PASSWORD: nbl # only do this in development
+      POSTGRES_DB: nbl_db
+    volumes:
+      - psql:/var/lib/postgresql/data # save data between restarts
+    ports:
+      - 5555:5432 # binds port 5555 on your computer to the postgres port!
