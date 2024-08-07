@@ -1,10 +1,13 @@
 from collections.abc import Iterable, Mapping
 from typing import Literal
 
+import anndata as ad
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import spatialdata as sd
 from matplotlib import ticker
+from more_itertools import first
 
 
 def _replace_element(sdata: sd.SpatialData, element_name: str):
@@ -178,3 +181,55 @@ def remove_ticks(f: plt.Figure | plt.Axes | Iterable[plt.Axes], axis: Literal["x
             [_set_locator_formatter(a, axis) for a in f]
         case _:
             raise ValueError("f must be a Figure, an Axes object, or a list of Axes objects")
+
+
+def _set_table_index(x: pd.Series):
+    """Generates a table index string by concatenating the first part of the 'region' column split by '_' and the 'instance_id'.
+
+    Parameters
+    ----------
+    x : pd.Series
+        A pandas Series object representing a row of the table, with at least 'region' and 'instance_id' fields.
+
+    Returns
+    -------
+    str
+        The generated index string for the table.
+    """
+    return f"{first(x.region.split('_'))}_{x.instance_id}"
+
+
+def reset_table_index(element: sd.SpatialData | ad.AnnData | pd.DataFrame, table: str | None = None) -> None:
+    """Resets the index of the table based on 'region' and 'instance_id' columns.
+
+    This function handles `SpatialData`, `AnnData`, and `DataFrame` objects.
+
+    Parameters
+    ----------
+    element : sd.SpatialData | ad.AnnData | pd.DataFrame
+        The data structure containing the table for which the index needs to be reset.
+    table : str | None, optional
+        The table name in case of a SpatialData object, by default None.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+        If the DataFrame does not contain the 'region' and 'instance_id' columns.
+    """
+    match element:
+        case sd.SpatialData():
+            element.tables[table].obs_names = element.tables[table].obs.apply(_set_table_index, axis=1)
+            element.tables[table].strings_to_categoricals()
+        case ad.AnnData():
+            element.obs_names = element.obs.apply(_set_table_index, axis=1)
+            element.strings_to_categoricals()
+        case pd.DataFrame():
+            if np.isin(["region", "instance_id"], element.columns).all():
+                element.index = element.apply(_set_table_index, axis=1)
+            else:
+                raise ValueError("The DataFrame does not contain the 'region' and 'instance_id' columns.")
+    return element

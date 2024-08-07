@@ -152,3 +152,16 @@ def _copy_inplace(bound: inspect.BoundArguments, *args_to_check: P.args, func_na
                             continue
     else:
         raise ValueError(f"Missing 'inplace' argument in function {func_name} signature.")
+
+
+def _catch_warnings(func: Callable[..., T]) -> Callable[..., T]:
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable[Concatenate[str, P], T]:
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=UserWarning | FutureWarning,
+            )
+            return func(*args, **kwargs)
+
+    return wrapper

@@ -95,7 +95,7 @@ def _rp_stats_table_fov(
         columns=properties_names,
         index=sdata_table.obs_names,
     )
-    if "centroid" in properties_names:
+    if "centroid" in properties:
         rp_table_centroids: pd.DataFrame = rp_table[[Y, X]]
         rp_table: pd.DataFrame = rp_table.drop(columns=[Y, X])
         sdata_table.obsm["spatial"] = rp_table_centroids.to_numpy()

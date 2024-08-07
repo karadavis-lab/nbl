@@ -74,7 +74,7 @@ class DaskSetupDelayed:
             case _:
                 raise ValueError(f"progress_bar must be one of 'rich' or 'classic', not {progress_bar}")
 
-        futures = client.compute(self._delayed_objects)
+        futures = client.compute(collections=self._delayed_objects, allow_other_workers=True)
 
         _results = [r for _f, r in tqdm(as_completed(futures, with_results=True), total=len(self._delayed_objects))]
 

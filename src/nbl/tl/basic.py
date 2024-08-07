@@ -7,9 +7,11 @@ import spatialdata as sd
 from dask import delayed
 
 from nbl._util import DaskSetupDelayed
+from nbl._util.decorators import _catch_warnings
 from nbl.tl._utils import _rp_stats_table_fov, _set_unique_obs_names, _strip_var_names
 
 
+@_catch_warnings
 def aggregate_images_by_labels(
     sdata: sd.SpatialData,
     label_type: str,
@@ -57,8 +59,13 @@ def aggregate_images_by_labels(
     - The computed aggregated data is merged with the existing table in the SpatialData object.
     - The function uses delayed execution via Dask for parallel processing and improved performance.
     """
-    all_coords: list[str] = ns.natsorted(sdata.coordinate_systems)
+    all_coords = ns.natsorted(sdata.coordinate_systems)
     _tasks = []
+    # with warnings.catch_warnings():
+    #         warnings.filterwarnings(
+    #             "ignore",
+    #             category=[UserWarning, FutureWarning],
+    #         )
     for coord in all_coords:
         sdata_coord = delayed(sdata.filter_by_coordinate_system)(coordinate_system=coord)
         t1 = delayed(sdata_coord.aggregate)(
@@ -70,14 +77,18 @@ def aggregate_images_by_labels(
             region_key=region_key,
             instance_key=instance_key,
         )
-        t2 = delayed(_set_unique_obs_names)(sdata=t1, coord=coord, table_name=table_name)
-        t3 = delayed(_strip_var_names)(sdata=t2, table_name=table_name, agg_func=agg_func)
-        _tasks.append(t3)
+        t1 = t1.persist()
+        t2_t3 = delayed(_strip_var_names)(
+            sdata=delayed(_set_unique_obs_names)(sdata=t1, coord=coord, table_name=table_name),
+            table_name=table_name,
+            agg_func=agg_func,
+        )
+        _tasks.append(t2_t3)
 
     dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
-
     _sdatas = dask_runner.compute(progress_bar="classic", tqdm_kwargs=None)
-    adata: ad.AnnData = sd.concatenate(
+
+    adata = sd.concatenate(
         sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
     ).tables[table_name]
 

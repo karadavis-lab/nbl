@@ -2,6 +2,7 @@ import anndata as ad
 import numpy as np
 import spatialdata as sd
 from numpy.typing import NDArray
+from scipy import sparse
 
 from nbl._util import write_elements
 
@@ -56,26 +57,20 @@ def arcsinh_transform(
         sdata = sd.SpatialData()
 
     """
-    table_keys = list(sdata.subset(element_names=table_names, filter_tables=True).tables.keys())
+    table_keys = [table_names] if isinstance(table_names, str) else table_names
 
     for table in table_keys:
-        adata: ad.AnnData = sdata.tables[table].copy()
-        transformed_X: NDArray = np.arcsinh(shift_factor + (adata.X * scale_factor))
-        if replace_X:
-            adata.X = transformed_X
+        adata: ad.AnnData = sdata.tables[table]
+        if sparse.issparse(adata.X):
+            transformed_X: NDArray = np.arcsinh(shift_factor + (adata.X.toarray() * scale_factor))
         else:
-            adata.layers[f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"] = transformed_X
-        sdata.tables[table] = adata
+            transformed_X: NDArray = np.arcsinh(shift_factor + (adata.X * scale_factor))
+
+        if replace_X:
+            adata.X = sparse.csr_matrix(transformed_X)
+        else:
+            adata.layers[f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"] = sparse.csr_matrix(transformed_X)
 
     if write:
         write_elements(sdata=sdata, elements={"tables": table_keys})
     return None if inplace else sdata
-
-
-# def split_sdata_to_fovs(sdata: sd.SpatialData):
-#     coords = sdata.coordinate_systems
-#     fov_sdatas = []
-#     for coord in coords:
-#         fov_sd = sdata.filter_by_coordinate_system(coordinate_system=coord)
-#         fov_sdatas.append(fov_sd)
-#     return fov_sdatas
