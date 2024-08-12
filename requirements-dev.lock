@@ -609,6 +609,8 @@ natsort==8.4.0
     # via domdf-python-tools
     # via nbl
     # via scanpy
+nb-clean==3.3.0
+    # via nbl
 nbclient==0.10.0
     # via jupyter-cache
     # via myst-nb
@@ -621,6 +623,7 @@ nbformat==5.10.4
     # via jupyter-server
     # via jupyterlite-sphinx
     # via myst-nb
+    # via nb-clean
     # via nbclient
     # via nbconvert
     # via nbstripout
