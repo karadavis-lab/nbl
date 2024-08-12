@@ -6,12 +6,12 @@ import numpy as np
 import spatialdata as sd
 from dask import delayed
 
-from nbl._util import DaskSetupDelayed
-from nbl._util.decorators import _catch_warnings
 from nbl.tl._utils import _rp_stats_table_fov, _set_unique_obs_names, _strip_var_names
+from nbl.util import DaskSetupDelayed
+from nbl.util.decorators import catch_warnings
 
 
-@_catch_warnings
+@catch_warnings
 def aggregate_images_by_labels(
     sdata: sd.SpatialData,
     label_type: str,
@@ -61,11 +61,6 @@ def aggregate_images_by_labels(
     """
     all_coords = ns.natsorted(sdata.coordinate_systems)
     _tasks = []
-    # with warnings.catch_warnings():
-    #         warnings.filterwarnings(
-    #             "ignore",
-    #             category=[UserWarning, FutureWarning],
-    #         )
     for coord in all_coords:
         sdata_coord = delayed(sdata.filter_by_coordinate_system)(coordinate_system=coord)
         t1 = delayed(sdata_coord.aggregate)(
@@ -86,7 +81,7 @@ def aggregate_images_by_labels(
         _tasks.append(t2_t3)
 
     dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
-    _sdatas = dask_runner.compute(progress_bar="classic", tqdm_kwargs=None)
+    _sdatas = dask_runner.compute()
 
     adata = sd.concatenate(
         sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
@@ -95,7 +90,7 @@ def aggregate_images_by_labels(
     sdata.tables[table_name] = adata
 
     if write:
-        from nbl._util import write_elements
+        from nbl.util import write_elements
 
         write_elements(sdata=sdata, elements={"tables": table_name})
 
@@ -182,21 +177,21 @@ def regionprops(
         _tasks.append(t2)
     dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
 
-    _sdatas = dask_runner.compute(progress_bar="classic", tqdm_kwargs=None)
+    _sdatas = dask_runner.compute()
     adata: ad.AnnData = sd.concatenate(
         sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
     ).tables[table_name]
     sdata.tables[table_name] = adata
 
     if write:
-        from nbl._util import write_elements
+        from nbl.util import write_elements
 
         write_elements(sdata=sdata, elements={"tables": table_name})
 
     return None if inplace else sdata
 
 
-def quantile(adata: ad.AnnData, var: str, q: float, filter_adata: bool = False, **kwargs) -> np.floating:
+def quantile(adata: ad.AnnData, var: str, q: float, filter_adata: bool = False, **kwargs) -> np.floating | ad.AnnData:
     """Computes the qth quantile of a particular `var` in the `AnnData` object.
 
     Parameters
@@ -209,7 +204,7 @@ def quantile(adata: ad.AnnData, var: str, q: float, filter_adata: bool = False, 
         Percentage or sequence of percentages for the percentiles to compute.
         Must be between 0 and 1 inclusive.
     filter_adata: bool
-        Whether or not to filter the `obs_names` by the value v associated to the qth quantile.
+        Whether or not to filter the `obs_names` by the value `v` associated to the qth quantile.
     kwargs: Mapping[str, Any]
         All other keyword arguments are passed to `np.quantile`
 
@@ -219,9 +214,13 @@ def quantile(adata: ad.AnnData, var: str, q: float, filter_adata: bool = False, 
         The value corresponding to the qth quantile.
     """
     v: np.floating = np.quantile(a=adata[:, var].X.toarray().squeeze(), q=q, **kwargs)
-    adata.uns["quantiles"] = {var: {"quantile": q, "value": v}}
+    if "quantiles" not in adata.uns.keys():
+        adata.uns["quantiles"] = {}
+    if var not in adata.uns["quantiles"].keys():
+        adata.uns["quantiles"] = {var: {}}
+    adata.uns["quantiles"][var].update({"quantile": q, "value": v})
     if filter_adata:
-        filtered_adata = filter_obs_names_by_quantile(adata=adata, var=var, v=v, copy=False)
+        filtered_adata: ad.AnnData = filter_obs_names_by_quantile(adata=adata, var=var, v=v, copy=False)
         return filtered_adata
     else:
         return v

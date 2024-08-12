@@ -1,7 +1,7 @@
 from importlib.metadata import version
 
-from . import _util, io, ln, pl, pp, tl
+from . import io, ln, pl, pp, tl, util
 
-__all__ = ["pl", "pp", "tl", "ln", "_util", "io"]
+__all__ = ["pl", "pp", "tl", "ln", "util", "io"]
 
 __version__ = version("nbl")

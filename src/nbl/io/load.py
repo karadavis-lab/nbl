@@ -6,7 +6,7 @@ import spatialdata as sd
 from dask import delayed
 from upath import UPath
 
-from nbl._util import DaskSetupDelayed
+from nbl.util import DaskSetupDelayed
 
 from ._utils import _parse_image, _parse_labels
 
@@ -14,10 +14,11 @@ from ._utils import _parse_image, _parse_labels
 def convert_cohort(
     fov_dir: UPath,
     label_dir: UPath,
+    file_path: UPath,
     filter_fovs: str | re.Pattern = None,
-    file_path: UPath | None = None,
     array_type: Literal["numpy", "cupy"] = "numpy",
-) -> None:
+    return_sdata: bool = False,
+) -> sd.SpatialData | None:
     """Converts a cohort of images and labels to SpatialData objects and saves them to disk.
 
     Parameters
@@ -32,26 +33,16 @@ def convert_cohort(
         The path to the Zarr Store to save the `SpatialData` objects to.
     array_type : Literal["numpy";, "cupy], optional
         Array type for dask chunks. Available options: "numpy", "cupy".
-
-    Notes
-    -----
-    This function processes multiple field of view (FOV) images and their corresponding label images
-    in parallel using Dask to improve performance. The steps are as follows:
-
-    1. FOV images are first sorted and optionally filtered using a regular expression pattern.
-    2. For each FOV, the `_create_sdata` function is called to generate a `SpatialData` object that
-       includes the image and associated labels.
-    3. A Dask runner processes these tasks in parallel to create multiple `SpatialData` objects.
-    4. These `SpatialData` objects are then concatenated into a single `SpatialData` object.
-    5. If a `file_path` is provided, the concatenated `SpatialData` object is saved to the specified
-       Zarr store on disk.
+    return_sdata : bool, optional
+        Whether to return the `SpatialData` object or not.
 
     - The `array_type` parameter determines whether `numpy` or `cupy` arrays are used for the
       underlying data structures, which can help with performance based on the execution environment.
 
     Returns
     -------
-    None
+    sd.SpatialData | None
+        The `SpatialData` object if `return_sdata` is True, otherwise None.
 
     """
     fovs = ns.natsorted(fov_dir.glob("[!.]*/"))
@@ -64,12 +55,11 @@ def convert_cohort(
         _tasks.append(delayed(_create_sdata)(fov, label_dir, array_type))
 
     dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
-    _sdatas = dask_runner.compute(progress_bar="classic", tqdm_kwargs=None)
-
+    _sdatas = dask_runner.compute()
     sdata = sd.concatenate(sdatas=_sdatas)
-    if file_path:
-        sdata.write(file_path=file_path)
-    else:
+
+    sdata.write(file_path=file_path)
+    if return_sdata:
         return sdata
 
 
@@ -109,7 +99,7 @@ def _create_sdata(
 
     sdata = sd.SpatialData()
 
-    parsed_image = _parse_image(fov_path, fov_name, array_type, rechunk)
+    parsed_image = _parse_image(fov_path, array_type, rechunk)
 
     parsed_labels = _parse_labels(label_path=label_dir, fov_name=fov_name, array_type=array_type, rechunk=rechunk)
 
