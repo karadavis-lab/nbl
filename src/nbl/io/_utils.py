@@ -5,13 +5,12 @@ import dask.array as da
 import natsort as ns
 import xarray as xr
 from dask_image.imread import imread
-from spatial_image import SpatialImage
 from spatialdata.models import C, Image2DModel, Labels2DModel, X, Y
 from spatialdata.transformations import Identity
 from upath import UPath
 
 
-def _rechunk(si: xr.DataArray, chunks: tuple[int, int, int]) -> SpatialImage:
+def _rechunk(si: xr.DataArray, chunks: tuple[int, int, int]) -> xr.DataArray:
     """Rechunk a SpatialImage.
 
     Parameters
@@ -40,15 +39,14 @@ def _rechunk(si: xr.DataArray, chunks: tuple[int, int, int]) -> SpatialImage:
 
 
 def _parse_image(
-    fov_path: UPath, fov_name: str, array_type: Literal["numpy", "cupy"], rechunk: tuple[int, int, int] | None
-) -> SpatialImage:
+    fov_path: UPath, array_type: Literal["numpy", "cupy"], rechunk: tuple[int, int, int] | None
+) -> xr.DataArray:
     """Parse a single image from a folder of tiffs.
 
     Parameters
     ----------
     fov_path : UPath
         Path to the folder containing the tiffs.
-    fov_name: str
     array_type : Literal["numpy", "cupy"]
         The array type to use for the data.
     rechunk : bool | tuple[int, int, int]
@@ -56,7 +54,7 @@ def _parse_image(
 
     Returns
     -------
-    SpatialImage
+    xr.DataArray
         The parsed image.
 
     Examples
@@ -72,7 +70,7 @@ def _parse_image(
     data: da.Array = imread(fname=f"{fov_path.as_posix()}/*.tiff", arraytype=array_type)
     channels = ns.natsorted([f.stem for f in fov_path.glob("*.tiff")])
 
-    parsed_image = Image2DModel().parse(
+    parsed_image: xr.DataArray = Image2DModel().parse(
         data=data, dims=(C, Y, X), c_coords=channels, transformations={fov_path.name: Identity()}
     )
     Image2DModel().validate(parsed_image)
@@ -84,24 +82,24 @@ def _parse_labels(
     fov_name: str,
     array_type: Literal["numpy", "cupy"],
     rechunk: tuple[int, int, int] | None,
-) -> Mapping[str, SpatialImage]:
-    """_summary_.
+) -> Mapping[str, xr.DataArray]:
+    """Convert segmentation labels for a given FOV to an Xarray DataArray..
 
     Parameters
     ----------
     label_path : UPath
-        _description_
+        The path to the label image.
     fov_name : str
-        _description_
-    array_type : Literal[&quot;numpy&quot;, &quot;cupy&quot;]
-        _description_
+        The name of the FOV.
+    array_type : Literal["numpy", "cupy"]
+        The array type to use for the data.
     rechunk : tuple[int, int, int] | None
-        _description_
+        The chunk size to use for rechunking the data.
 
     Returns
     -------
-    Mapping[str, SpatialImage]
-        _description_
+    Mapping[str, xr.DataArray]
+        A mapping of label names to parsed label images.
     """
     # Get label suffixes
     labels: list[UPath] = ns.natsorted(label_path.glob(f"{fov_name}_*.tiff"))
@@ -123,8 +121,8 @@ def _convert_label_to_labels(
     fov_name: str,
     array_type: Literal["numpy", "cupy"],
     rechunk: tuple[int, int, int] | None,
-) -> None:
-    """_summary_.
+) -> xr.DataArray:
+    """Convert a single label image to a Labels2DModel / Xarray.
 
     Parameters
     ----------
@@ -136,6 +134,11 @@ def _convert_label_to_labels(
         The array type to use for the data.
     rechunk : tuple[int, int, int] | None
         The chunk size to use for rechunking the data.
+
+    Returns
+    -------
+    xr.DataArray
+        The parsed label image.
     """
     label_image = imread(fname=label_path, arraytype=array_type)
 
@@ -146,5 +149,5 @@ def _convert_label_to_labels(
     )
     Labels2DModel().validate(parsed_label)
     if rechunk:
-        parsed_label: SpatialImage = _rechunk(parsed_label, chunks=rechunk)
+        parsed_label: xr.DataArray = _rechunk(parsed_label, chunks=rechunk)
     return parsed_label

@@ -3,17 +3,31 @@ import inspect
 import os
 import warnings
 from collections.abc import Callable
-from pathlib import Path
 from typing import Any, Concatenate, ParamSpec, TypeVar
 
 import anndata as ad
 import spatialdata as sd
+from upath import UPath
 
 P = ParamSpec("P")
 T = TypeVar("T")
 
 
 def get_annotation(bound: inspect.BoundArguments, parameter_name: str) -> Any | None:
+    """Gets the annotation of a parameter from a bound arguments object.
+
+    Parameters
+    ----------
+    bound : inspect.BoundArguments
+        The bound arguments object.
+    parameter_name : str
+        The name of the parameter to get the annotation for.
+
+    Returns
+    -------
+    Any | None
+        The annotation of the parameter.
+    """
     param = bound.signature.parameters[parameter_name]
     return param.annotation
 
@@ -83,6 +97,19 @@ def _rename_kwargs(
 
 
 def path_alias(*args_to_convert: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
+    """Decorator that converts path-like arguments to `upath.UPath` objects.
+
+    Parameters
+    ----------
+    *args_to_convert : str
+        Variable-length argument list of strings representing the names of arguments to convert.
+
+    Returns
+    -------
+    Callable[[Callable[..., T]], Callable[..., T]]
+        A decorator function that can be applied to another function.
+    """
+
     def path_decorator(f: Callable[P, T]) -> Callable[Concatenate[str, P], T]:
         sig = inspect.signature(f)
 
@@ -90,7 +117,7 @@ def path_alias(*args_to_convert: str) -> Callable[[Callable[..., T]], Callable[.
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable[Concatenate[str, P], T]:
             bound = sig.bind(*args, **kwargs)
             bound.apply_defaults()
-            _to_path(bound, *args_to_convert)
+            _to_upath(bound, *args_to_convert)
             return f(*bound.args, **bound.kwargs)
 
         return wrapper
@@ -98,12 +125,12 @@ def path_alias(*args_to_convert: str) -> Callable[[Callable[..., T]], Callable[.
     return path_decorator
 
 
-def _to_path(bound: inspect.BoundArguments, *args_to_convert: P.args) -> None:
+def _to_upath(bound: inspect.BoundArguments, *args_to_convert: P.args) -> None:
     for arg in args_to_convert:
         if arg in bound.arguments:
             annotation = get_annotation(bound, arg)
             if annotation == (str | os.PathLike):
-                bound.arguments[arg] = Path(bound.arguments[arg])
+                bound.arguments.update({arg: UPath(bound.arguments[arg])})
 
 
 def check_inplace(*args_to_check: str) -> Callable[[Callable[..., T]], Callable[..., T]]:
@@ -143,10 +170,10 @@ def _copy_inplace(bound: inspect.BoundArguments, *args_to_check: P.args, func_na
         if not inplace:
             for arg in args_to_check:
                 if arg in bound.arguments:
-                    match (arg, bound.signature[arg]):
-                        case (str(), sd.SpatialData()):
+                    match bound.signature[arg]:
+                        case sd.SpatialData():
                             bound.arguments[arg] = bound.arguments[arg].deepcopy()
-                        case (str(), ad.AnnData()):
+                        case ad.AnnData():
                             bound.arguments[arg] = bound.arguments[arg].copy()
                         case _:
                             continue
@@ -154,14 +181,24 @@ def _copy_inplace(bound: inspect.BoundArguments, *args_to_check: P.args, func_na
         raise ValueError(f"Missing 'inplace' argument in function {func_name} signature.")
 
 
-def _catch_warnings(func: Callable[..., T]) -> Callable[..., T]:
+def catch_warnings(func: Callable[..., T]) -> Callable[..., T]:
+    """Decorator that catches warnings and suppresses them.
+
+    Parameters
+    ----------
+    func : Callable[..., T]
+        The function to decorate.
+
+    Returns
+    -------
+    Callable[..., T]
+        The decorated function.
+    """
+
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable[Concatenate[str, P], T]:
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                category=UserWarning | FutureWarning,
-            )
+        with warnings.catch_warnings(record=False):
+            warnings.simplefilter("ignore")
             return func(*args, **kwargs)
 
     return wrapper

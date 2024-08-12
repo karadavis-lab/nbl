@@ -1,14 +1,15 @@
 import webbrowser
 from collections.abc import Iterable
 
+import dask
 from dask.delayed import Delayed
-from distributed import Client, as_completed, get_client
+from distributed import Client, progress
 
 
 class DaskLocalCluster:
     """_summary_."""
 
-    def __init__(self, n_workers: int, threads_per_worker: int):
+    def __init__(self, n_workers: int, threads_per_worker: int, **client_kwargs):
         """_summary_.
 
         Parameters
@@ -18,7 +19,7 @@ class DaskLocalCluster:
         threads_per_worker : int
             _description_
         """
-        self.client = Client(n_workers=n_workers, threads_per_worker=threads_per_worker)
+        self.client = Client(n_workers=n_workers, threads_per_worker=threads_per_worker, **client_kwargs)
 
     def __call__(self, open_dashboard: bool = True) -> Client:
         """_summary_.
@@ -51,31 +52,19 @@ class DaskSetupDelayed:
         """
         self._delayed_objects = delayed_objects
 
-    def compute(self, progress_bar: bool | str, tqdm_kwargs: dict):
+    def compute(self):
         """Compute the delayed function.
-
-        Parameters
-        ----------
-        return_futures : bool
-            If True, pass the futuers to `as_completed` to use.
 
         Returns
         -------
-        as_completed
-            A class which yields futures as they are finished.
+        list[Any]
+            The results of the delayed computations.
         """
-        client = get_client()
-
-        match progress_bar:
-            case "rich":
-                from tqdm.rich import tqdm
-            case "classic":
-                from tqdm.auto import tqdm
-            case _:
-                raise ValueError(f"progress_bar must be one of 'rich' or 'classic', not {progress_bar}")
-
-        futures = client.compute(collections=self._delayed_objects, allow_other_workers=True)
-
-        _results = [r for _f, r in tqdm(as_completed(futures, with_results=True), total=len(self._delayed_objects))]
-
-        return _results
+        x = dask.persist(*self._delayed_objects)
+        progress(x)
+        results = dask.compute(*x)
+        match results:
+            case list():
+                return results
+            case tuple():
+                return list(results)
