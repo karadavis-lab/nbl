@@ -7,7 +7,7 @@ import pandas as pd
 import spatialdata as sd
 import xarray as xr
 from more_itertools import one
-from numpy.typing import NDArray
+from numpydantic import NDArray
 from skimage.measure import regionprops_table
 from spatialdata.models import X, Y
 
@@ -73,8 +73,8 @@ def _rp_stats_table_fov(
     - It uses xarray's `apply_ufunc` to parallelize the calculation.
     - The computed properties are merged with the existing table in the SpatialData object.
     """
-    n_obs = sdata.tables[table_name].n_obs
-    coord = one(sdata.coordinate_systems)
+    n_obs: int = sdata.tables[table_name].n_obs
+    coord: str = one(sdata.coordinate_systems)
 
     n_properties = len(properties_names)
     rp = xr.apply_ufunc(
@@ -161,3 +161,87 @@ def _strip_var_names(sdata: sd.SpatialData, table_name: str, agg_func: str) -> s
         var.removeprefix("channel_").removesuffix(f"_{agg_func}") for var in sdata.tables[table_name].var_names
     ]
     return sdata
+
+
+def _ratio_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+    """Computes the ratio score between two arrays.
+
+    Parameters
+    ----------
+    x1
+        The first array.
+    x2
+        The second array.
+
+    Returns
+    -------
+    NDArray
+        The ratio score between the two arrays.
+    """
+    return x1 / (x2 + eps)
+
+
+def _normalized_difference_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+    """Computes the normalized difference score between two arrays.
+
+    Parameters
+    ----------
+    x1
+        The first array.
+    x2
+        The second array.
+    eps
+        The epsilon value to use for numerical stability, by default 1e-10.
+
+    Returns
+    -------
+    The normalized difference score between the two arrays.
+    """
+    return (x1 - x2) / (x1 + x2 + eps)
+
+
+def _log_ratio_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+    """Computes the log ratio score between two arrays.
+
+    Parameters
+    ----------
+    x1
+        The first array.
+    x2
+        The second array.
+    eps
+        The epsilon value to use for numerical stability, by default 1e-10.
+
+    Returns
+    -------
+    The log ratio score between the two arrays.
+    """
+    return np.log((x1 + eps) / (x2 + eps))
+
+
+def _scaled_difference_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+    """Computes the scaled difference score between two arrays.
+
+    Parameters
+    ----------
+    x1
+        The first array.
+    x2
+        The second array.
+    eps
+        The epsilon value to use for numerical stability, by default 1e-10.
+
+    Returns
+    -------
+    The scaled difference score between the two arrays.
+    """
+    return (x1 - x2) / (np.abs(x1 - x2) + eps)
+
+
+_scores = {
+    "ratio": _ratio_score,
+    "normalized_difference": _normalized_difference_score,
+    "log_ratio": _log_ratio_score,
+    "scaled_difference": _scaled_difference_score,
+}
+"""Mapping of score functions to their corresponding names."""

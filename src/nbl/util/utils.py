@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Literal
 
 import anndata as ad
@@ -56,10 +56,17 @@ def _write_element(
     in_zarr_store : list[str]
         _description_
     """
+    if element_type == "tables":
+        _update_and_sync_table(sdata=sdata, table_name=element_name)
+
     if f"{element_type}/{element_name}" in not_in_zarr_store and not in_zarr_store:
         sdata.write_element(element_name=element_name, overwrite=False)
     else:
         _replace_element(sdata=sdata, element_name=element_name)
+
+
+def _update_and_sync_table(sdata: sd.SpatialData, table_name: str):
+    sdata.tables[table_name] = sdata.update_annotated_regions_metadata(table=sdata.tables[table_name])
 
 
 def write_elements(
@@ -95,6 +102,7 @@ def write_elements(
                         not_in_zarr_store=not_in_zarr_store,
                         in_zarr_store=_in_zarr_store,
                     )
+    sdata.write_consolidated_metadata()
 
 
 def _remove_x_axis_ticks(ax: plt.Axes) -> None:
@@ -233,3 +241,55 @@ def reset_table_index(element: sd.SpatialData | ad.AnnData | pd.DataFrame, table
             else:
                 raise ValueError("The DataFrame does not contain the 'region' and 'instance_id' columns.")
     return element
+
+
+def _extract_layer_from_sdata(
+    sdata: sd.SpatialData, vars: Sequence[str] | None, table_name: str, layer: str
+) -> ad.AnnData:
+    if layer is not None:
+        if vars is None:
+            adata: ad.AnnData = _convert_layer_to_adata(adata=sdata.tables[table_name].copy(), layer=layer)
+        else:
+            adata: ad.AnnData = _convert_layer_to_adata(adata=sdata.tables[table_name][:, vars].copy(), layer=layer)
+    else:
+        if vars is None:
+            adata = sdata.tables[table_name]
+        else:
+            adata = sdata.tables[table_name][:, vars]
+    return adata
+
+
+def _extract_layer_from_sdata(
+    sdata: sd.SpatialData, vars: Sequence[str] | None, table_name: str, layer: str
+) -> ad.AnnData:
+    table: ad.AnnData = sdata.tables[table_name]
+    adata: ad.AnnData = table.copy() if vars is None else table[:, vars].copy()
+    return _convert_layer_to_adata(adata=adata, layer=layer) if layer is not None else table
+
+
+def _convert_layer_to_adata(adata: ad.AnnData, layer: str) -> ad.AnnData:
+    """Converts a layer in an AnnData object to an AnnData object.
+
+    Parameters
+    ----------
+    adata
+        The AnnData object.
+    layer
+        The name of the layer to convert.
+
+    Returns
+    -------
+    A copy of the AnnData object with the layer converted to X.
+    """
+    layer_as_adata = ad.AnnData(
+        X=adata.layers[layer],
+        obs=adata.obs,
+        var=adata.var,
+        uns=adata.uns,
+        obsm=adata.obsm,
+        varm=adata.varm,
+        obsp=adata.obsp,
+        varp=adata.varp,
+    )
+
+    return layer_as_adata
