@@ -12,27 +12,25 @@
 -e file:.
 accessible-pygments==0.0.5
     # via pydata-sphinx-theme
-aiobotocore==2.13.1
+aiobotocore==2.15.1
     # via lamindb-setup
     # via s3fs
-aiohappyeyeballs==2.3.5
+aiohappyeyeballs==2.4.3
     # via aiohttp
-aiohttp==3.10.2
+aiohttp==3.10.8
     # via aiobotocore
-    # via datasets
     # via fsspec
     # via ome-zarr
     # via s3fs
-aioitertools==0.11.0
+aioitertools==0.12.0
     # via aiobotocore
 aiosignal==1.3.1
     # via aiohttp
 alabaster==1.0.0
     # via sphinx
-altair==5.3.0
+altair==5.4.1
     # via altair-tiles
     # via nbl
-    # via somap
     # via vegafusion
 altair-tiles==0.3.0
     # via altair
@@ -41,13 +39,14 @@ anndata==0.10.8
     # via lamindb
     # via mudata
     # via nbl
-    # via pytometry
     # via readfcs
     # via scanpy
     # via spatialdata
 annotated-types==0.7.0
     # via pydantic
-anyio==4.4.0
+annoy==1.17.3
+    # via sklearn-ann
+anyio==4.6.0
     # via httpcore
     # via jupyter-server
     # via starlette
@@ -66,10 +65,8 @@ argon2-cffi==23.1.0
     # via jupyter-server
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
-array-api-compat==1.8
+array-api-compat==1.9
     # via anndata
-array2image==0.1.0
-    # via somap
 arrow==1.3.0
     # via isoduration
 asciitree==0.3.3
@@ -97,21 +94,23 @@ babel==2.16.0
     # via sphinx
 backports-tarfile==1.2.0
     # via jaraco-context
-beartype==0.18.5
-    # via somap
 beautifulsoup4==4.12.3
     # via nbconvert
     # via pydata-sphinx-theme
     # via sphinx-toolbox
-bionty==0.48.0
+bionty==0.51.1
     # via lamindb
 bleach==6.1.0
     # via nbconvert
-bokeh==3.5.1
+    # via panel
+bokeh==3.6.0
     # via dask
-boto3==1.34.131
+    # via holoviews
+    # via hvplot
+    # via panel
+boto3==1.35.23
     # via aiobotocore
-botocore==1.34.131
+botocore==1.35.23
     # via aiobotocore
     # via boto3
     # via lamindb-setup
@@ -119,15 +118,15 @@ botocore==1.34.131
 bottleneck==1.4.0
     # via pandas
     # via xarray
-buckaroo==0.6.12
+buckaroo==0.7.3
     # via nbl
 cachecontrol==0.14.0
     # via sphinx-toolbox
-cattrs==23.2.3
+cattrs==24.1.2
     # via django-schema-graph
     # via lsprotocol
     # via pygls
-certifi==2024.7.4
+certifi==2024.8.30
     # via httpcore
     # via httpx
     # via pyogrio
@@ -135,7 +134,7 @@ certifi==2024.7.4
     # via requests
     # via sentry-sdk
     # via sphinx-prompt
-cffi==1.17.0
+cffi==1.17.1
     # via argon2-cffi-bindings
 cfgv==3.4.0
     # via pre-commit
@@ -160,14 +159,14 @@ colorama==0.4.6
     # via sphinx-autobuild
 colorcet==3.1.0
     # via datashader
-colormap2d==0.2.0
-    # via somap
+    # via holoviews
+    # via hvplot
 comm==0.2.2
     # via ipykernel
     # via ipywidgets
 commonmark==0.9.1
     # via great-tables
-contourpy==1.2.1
+contourpy==1.3.0
     # via bokeh
     # via matplotlib
 coverage==7.6.1
@@ -176,7 +175,7 @@ cssutils==2.11.1
     # via dict2css
 cycler==0.12.1
     # via matplotlib
-dask==2024.8.0
+dask==2024.9.1
     # via dask-expr
     # via dask-image
     # via datashader
@@ -188,17 +187,14 @@ dask==2024.8.0
     # via spatialdata
     # via xarray
     # via xbatcher
-dask-expr==1.1.10
+dask-expr==1.1.15
     # via dask
 dask-image==2024.5.3
     # via nbl
     # via spatialdata
-datasets==2.20.0
-    # via somap
 datashader==0.16.3
-    # via pytometry
     # via xarray-spatial
-debugpy==1.8.5
+debugpy==1.8.6
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -209,17 +205,14 @@ deprecation==2.1.0
     # via postgrest
 dict2css==0.3.0.post1
     # via sphinx-toolbox
-dill==0.3.8
-    # via datasets
-    # via multiprocess
 distlib==0.3.8
     # via virtualenv
-distributed==2024.8.0
+distributed==2024.9.1
     # via dask
     # via ome-zarr
 dj-database-url==2.2.0
     # via lamindb-setup
-django==5.1
+django==5.1.1
     # via dj-database-url
     # via lamindb-setup
 django-schema-graph==3.1.0
@@ -249,16 +242,15 @@ einops==0.8.0
     # via xarray-einstats
 einx==0.3.0
     # via nbl
-equinox==0.11.4
-    # via nbl
-    # via somap
-esbonio==0.16.4
+esbonio==0.16.5
     # via nbl
 et-xmlfile==1.1.0
     # via openpyxl
-executing==2.0.1
+executing==2.1.0
     # via stack-data
-faker==26.3.0
+faiss-cpu==1.8.0.post1
+    # via sklearn-ann
+faker==30.1.0
     # via faker-biology
     # via nbl
 faker-biology==0.6.4
@@ -273,20 +265,18 @@ fastobo==0.12.3
     # via pronto
 fcsparser==0.2.8
     # via readfcs
-filelock==3.15.4
+filelock==3.16.1
     # via bionty
     # via cachecontrol
-    # via datasets
-    # via huggingface-hub
     # via sphinx-toolbox
     # via torch
     # via virtualenv
-flowsom @ git+https://github.com/saeyslab/FlowSOM_Python@80529c6b7a1747e8e71042102ac8762c3bfbaa1b
+flowsom @ git+https://github.com/saeyslab/FlowSOM_Python@211ad7cd083141f4a7541b217d009ee5c7da00f6
     # via nbl
-flox==0.9.9
+flox==0.9.13
     # via nbl
     # via xarray
-fonttools==4.53.1
+fonttools==4.54.1
     # via matplotlib
 fqdn==1.5.1
     # via jsonschema
@@ -295,10 +285,8 @@ frozendict==2.4.4
 frozenlist==1.4.1
     # via aiohttp
     # via aiosignal
-fsspec==2024.3.1
+fsspec==2024.6.1
     # via dask
-    # via datasets
-    # via huggingface-hub
     # via lamindb
     # via lightning
     # via ome-zarr
@@ -314,23 +302,27 @@ gitdb==4.0.11
 gitpython==3.1.43
     # via tach
     # via wandb
-gotrue==2.6.1
+gotrue==2.8.1
+    # via lamindb-setup
     # via supabase
 graphlib-backport==1.1.0
     # via buckaroo
 graphviz==0.20.3
     # via lamindb
     # via nbl
-great-tables==0.10.0
+great-tables==0.12.0
     # via nbl
 h11==0.14.0
     # via httpcore
     # via uvicorn
 h2==4.1.0
     # via httpx
-h5py==3.11.0
+h5py==3.12.1
     # via anndata
+    # via mudata
     # via scanpy
+holoviews==1.19.1
+    # via hvplot
 hpack==4.0.0
     # via h2
 html5lib==1.1
@@ -345,13 +337,13 @@ httpx==0.24.1
     # via storage3
     # via supabase
     # via supafunc
-huggingface-hub==0.24.5
-    # via datasets
+hvplot==0.11.0
+    # via nbl
 hyperframe==6.0.1
     # via h2
-identify==2.6.0
+identify==2.6.1
     # via pre-commit
-idna==3.7
+idna==3.10
     # via anyio
     # via apeye-core
     # via httpx
@@ -361,12 +353,13 @@ idna==3.7
     # via yarl
 igraph==0.11.6
     # via flowsom
-imageio==2.34.2
+    # via leidenalg
+imageio==2.35.1
     # via pims
     # via scikit-image
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==8.2.0
+importlib-metadata==8.5.0
     # via dask
     # via doit
     # via great-tables
@@ -375,7 +368,7 @@ importlib-metadata==8.2.0
     # via myst-nb
     # via nbproject
     # via twine
-importlib-resources==6.4.0
+importlib-resources==6.4.5
     # via great-tables
 iniconfig==2.0.0
     # via pytest
@@ -387,12 +380,12 @@ ipykernel==6.29.5
     # via nbl
 ipylab==1.0.0
     # via nbl
-ipython==8.26.0
+ipython==8.28.0
     # via ipykernel
     # via ipywidgets
     # via myst-nb
     # via nbl
-ipywidgets==8.1.3
+ipywidgets==8.1.5
     # via anywidget
     # via buckaroo
     # via ipycytoscape
@@ -401,24 +394,10 @@ isoduration==20.11.0
     # via jsonschema
 jaraco-classes==3.4.0
     # via keyring
-jaraco-context==5.3.0
+jaraco-context==6.0.1
     # via keyring
-jaraco-functools==4.0.2
+jaraco-functools==4.1.0
     # via keyring
-jax==0.4.31
-    # via equinox
-    # via jax-metal
-    # via nbl
-    # via somap
-jax-metal==0.1.0
-    # via nbl
-jaxlib==0.4.31
-    # via jax
-    # via jax-metal
-    # via nbl
-jaxtyping==0.2.33
-    # via equinox
-    # via somap
 jedi==0.19.1
     # via ipython
 jinja2==3.1.4
@@ -454,7 +433,7 @@ jsonschema-specifications==2023.12.1
     # via jsonschema
 jupyter-cache==1.0.0
     # via myst-nb
-jupyter-client==8.6.2
+jupyter-client==8.6.3
     # via ipykernel
     # via jupyter-server
     # via nbclient
@@ -489,30 +468,33 @@ jupyterlab-server==2.27.3
     # via jupyterlab
     # via jupyterlite-sphinx
     # via notebook
-jupyterlab-widgets==3.0.11
+jupyterlab-widgets==3.0.13
     # via ipywidgets
-jupyterlite-core==0.4.0
+jupyterlite-core==0.4.1
     # via jupyterlite-pyodide-kernel
     # via jupyterlite-sphinx
-jupyterlite-pyodide-kernel==0.4.1
+jupyterlite-pyodide-kernel==0.4.2
     # via nbl
 jupyterlite-sphinx==0.16.5
     # via nbl
-keyring==25.3.0
-    # via twine
-kiwisolver==1.4.5
-    # via matplotlib
-lamin-cli==0.16.0
+jupytext==1.16.4
     # via lamindb
-lamin-utils==0.13.2
+keyring==25.4.1
+    # via twine
+kiwisolver==1.4.7
+    # via matplotlib
+lamin-cli==0.17.8
+    # via lamindb
+lamin-utils==0.13.6
     # via lamindb
     # via lamindb-setup
     # via nbproject
     # via readfcs
-lamindb==0.75.1
+lamindb==0.76.11
     # via bionty
     # via nbl
-lamindb-setup==0.76.3
+lamindb-setup==0.77.7
+    # via bionty
     # via lamindb
 latexcodec==3.0.0
     # via pybtex
@@ -522,16 +504,20 @@ legacy-api-wrap==1.4
     # via scanpy
 legendkit==0.3.4
     # via marsilea
+leidenalg==0.10.2
+    # via nbl
 lightning==2.4.0
     # via nbl
-lightning-utilities==0.11.6
+lightning-utilities==0.11.7
     # via lightning
     # via pytorch-lightning
     # via torchmetrics
+linkify-it-py==2.0.3
+    # via panel
 llvmlite==0.43.0
     # via numba
     # via pynndescent
-lnschema-core==0.72.2
+lnschema-core==0.74.6
     # via lamindb
     # via lamindb-setup
 locket==1.0.0
@@ -543,67 +529,68 @@ lsprotocol==2023.0.1
     # via pygls
 lz4==4.3.3
     # via dask
+markdown==3.7
+    # via panel
 markdown-it-py==3.0.0
+    # via jupytext
     # via mdit-py-plugins
     # via myst-parser
+    # via panel
     # via rich
 markupsafe==2.1.5
     # via jinja2
     # via nbconvert
     # via sphinx-jinja2-compat
-marsilea==0.4.4
+marsilea==0.4.6
     # via nbl
-matplotlib==3.9.1.post1
+matplotlib==3.9.2
     # via flowsom
     # via legendkit
     # via marsilea
     # via matplotlib-scalebar
     # via nbl
-    # via pytometry
     # via scanpy
     # via seaborn
-    # via somap
     # via spatialdata-plot
 matplotlib-inline==0.1.7
     # via ipykernel
     # via ipython
 matplotlib-scalebar==0.8.1
     # via spatialdata-plot
-mdit-py-plugins==0.4.1
+mdit-py-plugins==0.4.2
+    # via jupytext
     # via myst-parser
+    # via panel
 mdurl==0.1.2
     # via markdown-it-py
 mercantile==1.2.1
     # via altair-tiles
 mistune==3.0.2
     # via nbconvert
-ml-dtypes==0.4.0
-    # via jax
-    # via jaxlib
-more-itertools==10.4.0
+more-itertools==10.5.0
     # via cssutils
     # via jaraco-classes
     # via jaraco-functools
 mpmath==1.3.0
     # via sympy
-msgpack==1.0.8
+msgpack==1.1.0
     # via cachecontrol
     # via distributed
-mudata==0.3.0
+mudata==0.2.4
     # via flowsom
-multidict==6.0.5
+multidict==6.1.0
     # via aiohttp
     # via yarl
 multipledispatch==1.0.0
     # via datashader
-multiprocess==0.70.16
-    # via datasets
 multiscale-spatial-image==1.0.1
     # via spatialdata
-myst-nb==1.1.1
+myst-nb==1.1.2
     # via nbl
 myst-parser==4.0.0
     # via myst-nb
+narwhals==1.9.0
+    # via altair
 natsort==8.4.0
     # via anndata
     # via domdf-python-tools
@@ -622,15 +609,12 @@ nbformat==5.10.4
     # via jupyter-cache
     # via jupyter-server
     # via jupyterlite-sphinx
+    # via jupytext
     # via myst-nb
     # via nb-clean
     # via nbclient
     # via nbconvert
-    # via nbstripout
 nbproject==0.10.4
-    # via lamindb
-    # via pytometry
-nbstripout==0.6.1
     # via lamindb
 nest-asyncio==1.6.0
     # via ipykernel
@@ -661,7 +645,7 @@ numba==0.60.0
     # via umap-learn
     # via xarray-einstats
     # via xarray-spatial
-numbagg==0.8.1
+numbagg==0.8.2
     # via xarray
 numcodecs==0.13.0
     # via zarr
@@ -670,28 +654,26 @@ numexpr==2.10.1
 numpy==1.26.4
     # via altair
     # via anndata
-    # via array2image
     # via bokeh
     # via bottleneck
-    # via colormap2d
     # via contourpy
     # via dask
     # via dask-image
-    # via datasets
     # via datashader
     # via einx
+    # via faiss-cpu
     # via fcsparser
     # via flowsom
     # via flox
     # via geopandas
     # via great-tables
     # via h5py
+    # via holoviews
+    # via hvplot
     # via imageio
-    # via jax
-    # via jaxlib
     # via marsilea
     # via matplotlib
-    # via ml-dtypes
+    # via mudata
     # via multiscale-spatial-image
     # via nbl
     # via numba
@@ -701,13 +683,11 @@ numpy==1.26.4
     # via numpy-groupies
     # via numpydantic
     # via ome-zarr
-    # via opt-einsum
     # via pandas
     # via patsy
     # via pims
     # via pyarrow
     # via pyogrio
-    # via pytometry
     # via scanpy
     # via scikit-image
     # via scikit-learn
@@ -730,7 +710,7 @@ numpy==1.26.4
     # via zarr
 numpy-groupies==0.11.2
     # via flox
-numpydantic==1.3.0
+numpydantic==1.6.3
     # via nbl
 odfpy==1.4.1
     # via pandas
@@ -738,8 +718,7 @@ ome-zarr==0.9.0
     # via spatialdata
 openpyxl==3.1.5
     # via pandas
-opt-einsum==3.3.0
-    # via jax
+opt-einsum==3.4.0
     # via xarray
 orjson==3.10.7
     # via nbproject
@@ -751,24 +730,27 @@ packaging==24.1
     # via bokeh
     # via buckaroo
     # via dask
-    # via datasets
     # via datashader
     # via deprecation
     # via distributed
+    # via faiss-cpu
     # via flox
     # via geopandas
+    # via holoviews
     # via htmltools
-    # via huggingface-hub
+    # via hvplot
     # via ipykernel
     # via jupyter-server
     # via jupyterlab
     # via jupyterlab-server
+    # via jupytext
     # via lazy-loader
     # via lightning
     # via lightning-utilities
     # via matplotlib
     # via nbconvert
     # via nbproject
+    # via panel
     # via pims
     # via pooch
     # via pydata-sphinx-theme
@@ -782,23 +764,25 @@ packaging==24.1
     # via torchmetrics
     # via xarray
     # via xarray-datatree
-pandas==2.2.2
+pandas==2.2.3
     # via altair
     # via anndata
     # via bokeh
     # via dask
     # via dask-expr
     # via dask-image
-    # via datasets
     # via datashader
     # via fcsparser
     # via flowsom
     # via flox
     # via geopandas
+    # via holoviews
+    # via hvplot
     # via lamindb
     # via marsilea
+    # via mudata
     # via nbl
-    # via pytometry
+    # via panel
     # via scanpy
     # via seaborn
     # via spatialdata
@@ -808,9 +792,16 @@ pandas==2.2.2
     # via xarray
 pandocfilters==1.5.1
     # via nbconvert
+panel==1.5.1
+    # via holoviews
+    # via hvplot
 param==2.1.1
     # via datashader
+    # via holoviews
+    # via hvplot
+    # via panel
     # via pyct
+    # via pyviz-comms
 parso==0.8.4
     # via jedi
 partd==1.4.2
@@ -821,7 +812,6 @@ patsy==0.5.6
 pexpect==4.9.0
     # via ipython
 pillow==10.4.0
-    # via array2image
     # via bokeh
     # via datashader
     # via imageio
@@ -832,7 +822,7 @@ pims==0.7
 pkginfo==1.10.0
     # via jupyterlite-pyodide-kernel
     # via twine
-platformdirs==4.2.2
+platformdirs==4.3.6
     # via apeye
     # via esbonio
     # via jupyter-core
@@ -848,14 +838,14 @@ postgrest==0.13.2
     # via supabase
 pre-commit==3.8.0
     # via nbl
-prometheus-client==0.20.0
+prometheus-client==0.21.0
     # via jupyter-server
-prompt-toolkit==3.0.47
+prompt-toolkit==3.0.48
     # via ipython
     # via tach
 pronto==2.5.5
     # via bionty
-protobuf==5.27.3
+protobuf==5.28.2
     # via vegafusion
     # via wandb
 psutil==6.0.0
@@ -877,13 +867,10 @@ pyarrow==17.0.0
     # via altair
     # via dask
     # via dask-expr
-    # via datasets
     # via lamindb
+    # via pandas
     # via spatialdata
     # via vegafusion
-pyarrow-hotfix==0.6
-    # via dask
-    # via datasets
 pybtex==0.24.0
     # via pybtex-docutils
     # via sphinxcontrib-bibtex
@@ -893,20 +880,19 @@ pycparser==2.22
     # via cffi
 pyct==0.5.0
     # via datashader
-pydantic==2.8.2
+pydantic==2.9.2
     # via gotrue
     # via nbproject
     # via numpydantic
     # via postgrest
     # via pydantic-settings
-    # via tach
-pydantic-core==2.20.1
+pydantic-core==2.23.4
     # via pydantic
-pydantic-settings==2.4.0
+pydantic-settings==2.5.2
     # via lamindb-setup
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
-pydot==2.0.0
+pydot==3.0.2
     # via tach
 pygls==1.3.1
     # via esbonio
@@ -920,21 +906,22 @@ pygments==2.18.0
     # via sphinx
     # via sphinx-prompt
     # via sphinx-tabs
-pykan==0.2.4
+pykan==0.2.6
     # via nbl
 pynndescent==0.5.13
     # via scanpy
+    # via sklearn-ann
     # via umap-learn
-pyogrio==0.9.0
+pyogrio==0.10.0
     # via geopandas
-pyparsing==3.1.2
+pyparsing==3.1.4
     # via matplotlib
     # via pydot
-pyproj==3.6.1
+pyproj==3.7.0
     # via geopandas
 pyspellchecker==0.8.1
     # via esbonio
-pytest==8.3.2
+pytest==8.3.3
     # via nbl
 python-calamine==0.2.3
     # via pandas
@@ -954,23 +941,23 @@ python-dotenv==1.0.1
     # via pydantic-settings
 python-json-logger==2.0.7
     # via jupyter-events
-pytometry==0.1.4
-    # via flowsom
 pytorch-lightning==2.4.0
     # via lightning
-pytz==2024.1
+pytz==2024.2
     # via pandas
+pyviz-comms==3.0.3
+    # via holoviews
+    # via panel
 pyxlsb==1.0.10
     # via pandas
 pyyaml==6.0.2
     # via bionty
     # via bokeh
     # via dask
-    # via datasets
     # via distributed
-    # via huggingface-hub
     # via jupyter-cache
     # via jupyter-events
+    # via jupytext
     # via lightning
     # via myst-nb
     # via myst-parser
@@ -980,15 +967,14 @@ pyyaml==6.0.2
     # via pytorch-lightning
     # via tach
     # via wandb
-pyzmq==26.1.0
+pyzmq==26.2.0
     # via ipykernel
     # via jupyter-client
     # via jupyter-server
-rapidfuzz==3.9.6
+rapidfuzz==3.10.0
     # via lamindb
 readfcs==1.1.8
     # via flowsom
-    # via pytometry
 readme-renderer==44.0
     # via twine
 realtime==1.0.6
@@ -1001,12 +987,11 @@ requests==2.32.3
     # via apeye
     # via bionty
     # via cachecontrol
-    # via datasets
     # via datashader
-    # via huggingface-hub
     # via jupyterlab-server
     # via lamindb-setup
     # via ome-zarr
+    # via panel
     # via pooch
     # via requests-toolbelt
     # via sphinx
@@ -1023,7 +1008,7 @@ rfc3986==2.0.0
 rfc3986-validator==0.1.1
     # via jsonschema
     # via jupyter-events
-rich==13.7.1
+rich==13.9.1
     # via rich-click
     # via spatialdata
     # via tach
@@ -1037,24 +1022,24 @@ ruamel-yaml==0.18.6
     # via sphinx-toolbox
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
-ruff==0.5.7
+ruff==0.6.8
     # via nbl
-s3fs==2024.3.1
+s3fs==2024.6.1
     # via fsspec
     # via lamindb-setup
 s3transfer==0.10.2
     # via boto3
-scanpy==1.10.2
+scanpy==1.10.3
     # via flowsom
-    # via pytometry
     # via spatialdata-plot
 scikit-image==0.24.0
     # via ome-zarr
     # via spatialdata
-scikit-learn==1.5.1
+scikit-learn==1.5.2
     # via flowsom
     # via pynndescent
     # via scanpy
+    # via sklearn-ann
     # via spatialdata-plot
     # via umap-learn
 scipy==1.12.0
@@ -1063,15 +1048,13 @@ scipy==1.12.0
     # via datashader
     # via flowsom
     # via flox
-    # via jax
-    # via jaxlib
     # via lamindb
     # via marsilea
     # via pynndescent
-    # via pytometry
     # via scanpy
     # via scikit-image
     # via scikit-learn
+    # via sklearn-ann
     # via spatialdata
     # via statsmodels
     # via umap-learn
@@ -1080,11 +1063,10 @@ scipy==1.12.0
 seaborn==0.13.2
     # via flowsom
     # via marsilea
-    # via pytometry
     # via scanpy
 send2trash==1.8.3
     # via jupyter-server
-sentry-sdk==2.12.0
+sentry-sdk==2.15.0
     # via wandb
 session-info==1.0.0
     # via flowsom
@@ -1092,12 +1074,12 @@ session-info==1.0.0
     # via scanpy
 setproctitle==1.3.3
     # via wandb
-setuptools==72.1.0
+setuptools==75.1.0
     # via lightning-utilities
     # via nbl
     # via spatialdata
     # via wandb
-shapely==2.0.5
+shapely==2.0.6
     # via geopandas
     # via spatialdata
 six==1.16.0
@@ -1105,11 +1087,12 @@ six==1.16.0
     # via bleach
     # via docker-pycreds
     # via html5lib
-    # via jax-metal
     # via patsy
     # via pybtex
     # via python-dateutil
     # via rfc3339-validator
+sklearn-ann==0.1.2
+    # via nbl
 slicerator==1.1.0
     # via pims
 smmap==5.0.1
@@ -1120,19 +1103,17 @@ sniffio==1.3.1
     # via httpx
 snowballstemmer==2.2.0
     # via sphinx
-somap==0.1.1
-    # via nbl
 sortedcontainers==2.4.0
     # via distributed
-soupsieve==2.5
+soupsieve==2.6
     # via beautifulsoup4
 spatial-image==1.1.0
     # via multiscale-spatial-image
     # via spatialdata
-spatialdata @ git+https://github.com/srivarra/spatialdata@a193a256376552db935e735a94ea5be646eb7506
+spatialdata @ git+https://github.com/srivarra/spatialdata@ebed847007cc96d41f2cb39ab46b7471acc0fecd
     # via nbl
     # via spatialdata-plot
-spatialdata-plot==0.2.4
+spatialdata-plot @ git+https://github.com/scverse/spatialdata-plot@6ffe22bb57748fb553807761e9771ff9ff1b015f
     # via nbl
 spectate==1.0.1
     # via ipycytoscape
@@ -1154,9 +1135,9 @@ sphinx==8.0.2
     # via sphinx-toolbox
     # via sphinxcontrib-bibtex
     # via sphinxext-opengraph
-sphinx-autobuild==2024.4.16
+sphinx-autobuild==2024.10.3
     # via nbl
-sphinx-autodoc-typehints==2.2.3
+sphinx-autodoc-typehints==2.4.4
     # via nbl
     # via sphinx-toolbox
 sphinx-autosummary-accessors==2023.4.0
@@ -1171,11 +1152,11 @@ sphinx-prompt==1.9.0
     # via sphinx-toolbox
 sphinx-tabs==3.4.5
     # via sphinx-toolbox
-sphinx-toolbox==3.7.0
+sphinx-toolbox==3.8.0
     # via nbl
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
-sphinxcontrib-bibtex==2.6.2
+sphinxcontrib-bibtex==2.6.3
     # via nbl
 sphinxcontrib-devhelp==2.0.0
     # via sphinx
@@ -1189,15 +1170,15 @@ sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
 sphinxext-opengraph==0.9.1
     # via nbl
-sqlalchemy==2.0.32
+sqlalchemy==2.0.35
     # via jupyter-cache
 sqlparse==0.5.1
     # via django
 stack-data==0.6.3
     # via ipython
-starlette==0.38.2
+starlette==0.39.2
     # via sphinx-autobuild
-statsmodels==0.14.2
+statsmodels==0.14.4
     # via scanpy
 stdlib-list==0.10.0
     # via session-info
@@ -1209,13 +1190,13 @@ supabase==2.2.1
     # via lamindb-setup
 supafunc==0.3.3
     # via supabase
-sympy==1.13.1
+sympy==1.13.3
     # via einx
     # via torch
 tabulate==0.9.0
     # via jupyter-cache
     # via sphinx-toolbox
-tach==0.10.0
+tach==0.12.0
     # via nbl
 tblib==3.0.0
     # via distributed
@@ -1226,23 +1207,24 @@ texttable==1.7.0
     # via igraph
 threadpoolctl==3.5.0
     # via scikit-learn
-tifffile==2024.7.24
+tifffile==2024.9.20
     # via dask-image
     # via pims
     # via scikit-image
 tinycss2==1.3.0
     # via nbconvert
+tomli==2.0.2
+    # via tach
 tomli-w==1.0.0
     # via tach
 toolz==0.12.1
-    # via altair
     # via dask
     # via datashader
     # via distributed
     # via flox
     # via ome-zarr
     # via partd
-torch==2.4.0
+torch==2.4.1
     # via lightning
     # via nbl
     # via pytorch-lightning
@@ -1250,7 +1232,7 @@ torch==2.4.0
     # via torchmetrics
 torchdata==0.8.0
     # via nbl
-torchmetrics==1.4.1
+torchmetrics==1.4.2
     # via lightning
     # via pytorch-lightning
 tornado==6.4.1
@@ -1263,9 +1245,8 @@ tornado==6.4.1
     # via notebook
     # via terminado
 tqdm==4.66.5
-    # via datasets
-    # via huggingface-hub
     # via lightning
+    # via panel
     # via pytorch-lightning
     # via scanpy
     # via umap-learn
@@ -1283,27 +1264,26 @@ traitlets==5.14.3
     # via nbclient
     # via nbconvert
     # via nbformat
-treescope==0.1.1
+treescope==0.1.5
     # via nbl
 twine==5.1.1
     # via nbl
-typeguard==2.13.3
-    # via jaxtyping
-types-python-dateutil==2.9.0.20240316
+types-python-dateutil==2.9.0.20241003
     # via arrow
 typing-extensions==4.12.2
+    # via altair
     # via anywidget
     # via dj-database-url
     # via domdf-python-tools
-    # via equinox
+    # via faker
     # via great-tables
     # via htmltools
-    # via huggingface-hub
     # via ipython
     # via lamindb
     # via lightning
     # via lightning-utilities
     # via myst-nb
+    # via panel
     # via pydantic
     # via pydantic-core
     # via pydata-sphinx-theme
@@ -1316,16 +1296,18 @@ typing-extensions==4.12.2
     # via storage3
     # via torch
     # via xarray-dataclasses
-tzdata==2024.1
+tzdata==2024.2
     # via pandas
+uc-micro-py==1.0.3
+    # via linkify-it-py
 umap-learn==0.5.6
     # via scanpy
-universal-pathlib==0.2.2
+universal-pathlib==0.2.5
     # via lamindb-setup
     # via nbl
 uri-template==1.3.0
     # via jsonschema
-urllib3==1.26.19
+urllib3==1.26.20
     # via botocore
     # via distributed
     # via lamindb-setup
@@ -1334,7 +1316,7 @@ urllib3==1.26.19
     # via sphinx-prompt
     # via torchdata
     # via twine
-uvicorn==0.30.5
+uvicorn==0.31.0
     # via sphinx-autobuild
 vega-datasets==0.9.0
     # via altair
@@ -1342,19 +1324,18 @@ vegafusion==1.6.9
     # via altair
 vegafusion-python-embed==1.6.9
     # via vegafusion
-virtualenv==20.26.3
+virtualenv==20.26.6
     # via pre-commit
-vl-convert-python==1.6.0
+vl-convert-python==1.6.1
     # via altair
-    # via somap
     # via vegafusion
-wandb==0.17.6
+wandb==0.18.3
     # via nbl
-watchfiles==0.23.0
+watchfiles==0.24.0
     # via sphinx-autobuild
 wcwidth==0.2.13
     # via prompt-toolkit
-webcolors==24.6.0
+webcolors==24.8.0
     # via jsonschema
 webencodings==0.5.1
     # via bleach
@@ -1365,13 +1346,11 @@ websocket-client==1.8.0
 websockets==12.0
     # via realtime
     # via sphinx-autobuild
-wheel==0.44.0
-    # via jax-metal
-widgetsnbextension==4.0.11
+widgetsnbextension==4.0.13
     # via ipywidgets
 wrapt==1.16.0
     # via aiobotocore
-xarray==2024.7.0
+xarray==2024.9.0
     # via datashader
     # via multiscale-spatial-image
     # via nbl
@@ -1388,26 +1367,24 @@ xarray-dataclasses==1.8.0
 xarray-datatree==0.0.14
     # via multiscale-spatial-image
     # via spatialdata
-xarray-einstats==0.7.0
+xarray-einstats==0.8.0
     # via nbl
 xarray-schema==0.0.3
     # via spatialdata
 xarray-spatial==0.4.0
     # via spatialdata
-xbatcher==0.3.0
+xbatcher==0.4.0
     # via nbl
 xlrd==2.0.1
     # via pandas
 xlsxwriter==3.2.0
     # via pandas
-xxhash==3.4.1
-    # via datasets
-xyzservices==2024.6.0
+xyzservices==2024.9.0
     # via altair-tiles
     # via bokeh
-yarl==1.9.4
+yarl==1.13.1
     # via aiohttp
-zarr==2.18.2
+zarr==2.18.3
     # via lamindb
     # via multiscale-spatial-image
     # via numpydantic
@@ -1415,5 +1392,5 @@ zarr==2.18.2
     # via spatialdata
 zict==3.0.0
     # via distributed
-zipp==3.19.2
+zipp==3.20.2
     # via importlib-metadata
