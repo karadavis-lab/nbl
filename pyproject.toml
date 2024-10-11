@@ -46,6 +46,8 @@ dependencies = [
     "sklearn-ann[annlibs]>=0.1.2",
     "leidenalg>=0.10.2",
     "hvplot>=0.10.0",
+    "selenium>=4.25.0",
+    "pymupdf>=1.24.11",
 ]
 
 [project.optional-dependencies]
