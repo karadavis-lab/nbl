@@ -1,24 +1,23 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
-from functools import cached_property
-from typing import Literal, NamedTuple
+from enum import Enum
+from typing import NamedTuple
 
 import bionty as bt
 import lamindb as ln
 import natsort as ns
-from bionty.models import BioRecord
-from lamindb.core import QuerySet, Record
 
 bt.settings.organism = "human"
 cm_lookup: NamedTuple = bt.CellMarker.lookup()
 
-__all__ = ["CellMarkerSet"]
 
+@dataclass
+class OntologySet:
+    """Represents a set of ontology features for a specific category."""
 
-class OntologySet(NamedTuple):
     name: str
-    features: list[str]
-    ontology: BioRecord
+    features: list[bt.CellMarker]
+    ontology: bt.models.BioRecord
 
 
 Immune_Infiltrate_Markers = OntologySet(
@@ -106,83 +105,153 @@ Cell_Surface_Markers = OntologySet(
 )
 
 
-@dataclass(init=False)
-class CellMarkerSet:
-    """Class to handle operations related to cell markers.
+# @dataclass(init=False)
+# class CellMarkerSet:
+#     """Class to handle operations related to cell markers.
 
-    Returns
-    -------
-    CellMarkerSet
-        A CellMarkerSet object
-    """
+#     Returns
+#     -------
+#     CellMarkerSet
+#         A CellMarkerSet object
+#     """
 
-    name: str
-    features: list[Record]
-    ontology: BioRecord
-    featureset: ln.FeatureSet
+#     name: str
+#     features: list[Record]
+#     ontology: BioRecord
+#     featureset: ln.FeatureSet
 
-    def __init__(self, ontology_set: OntologySet):
-        self.features = ontology_set.features
-        self.name = ontology_set.name
-        self.ontology = ontology_set.ontology
+#     def __init__(self, ontology_set: OntologySet):
+#         self.features = ontology_set.features
+#         self.name = ontology_set.name
+#         self.ontology = ontology_set.ontology
 
-    def _save_to_db(self) -> None:
-        """Save the FeatureSet to the database."""
-        fs = ln.FeatureSet(features=self.features, dtype="cat[bionty.CellMarker]", name=self.name)
+#     def _save_to_db(self) -> None:
+#         """Save the FeatureSet to the database."""
+#         fs = ln.FeatureSet(features=self.features, dtype="cat[bionty.CellMarker]", name=self.name)
+#         fs.save()
+
+#     @cached_property
+#     def _check_marker_set_in_db(self) -> bool:
+#         """Check if the specified marker set exists in the database.
+
+#         Returns
+#         -------
+#         bool
+#             True if the marker set exists, False otherwise
+#         """
+#         return ln.FeatureSet.filter(name__exact=self.name).exists()
+
+#     @cached_property
+#     def _featureset(self) -> ln.FeatureSet:
+#         """Get the FeatureSet from the database."""
+#         return ln.FeatureSet.filter(name__exact=self.name).one()
+
+#     @cached_property
+#     def _featureset_members(self) -> list[str]:
+#         return ns.natsorted([im.name for im in self._featureset.members])
+
+#     def get_markers(self, return_type: Literal["featureset", "names"]) -> QuerySet | list[str]:
+#         """Get markers and ensure they are saved to the database if not already.
+
+#         Parameters
+#         ----------
+#         return_type : Literal["featureset", "names"]
+#             Determines the format of the returned data:
+#             - "featureset": returns the FeatureSet object
+#             - "names": returns a list of marker names
+
+#         Returns
+#         -------
+#         QuerySet | list[str]
+#             The FeatureSet or a list of marker names, depending on `return_type`
+#         """
+#         if not self._check_marker_set_in_db:
+#             self._save_to_db()
+#         match return_type:
+#             case "featureset":
+#                 return self._featureset
+#             case "names":
+#                 return self._featureset_members
+
+
+class MarkerSet(Enum):
+    """An Enum class representing different marker sets."""
+
+    IMMUNE_INFILTRATE = "immune_infiltrate"
+    NEUROBLASTOMA = "neuroblastoma"
+    ADRENERGIC = "adrenergic"
+    MESENCHYMAL = "mesenchymal"
+    STEM_CELL = "stem_cell"
+    INTRACELLULAR = "intracellular"
+    TISSUE_STRUCTURE = "tissue_structure"
+    CELL_SURFACE = "cell_surface"
+
+    def feature_set(self) -> OntologySet:
+        """Get the OntologySet associated with this MarkerType.
+
+        Returns
+        -------
+            The OntologySet associated with this MarkerType.
+        """
+        return marker_type_to_features[self]
+
+    def to_list(self) -> list[str]:
+        """Get a list of strings representation of the markers in this MarkerType.
+
+        Returns
+        -------
+            A list of strings representation of the markers in this MarkerType.
+        """
+        featureset: ln.FeatureSet = self.get_featureset()
+        return ns.natsorted([im.name for im in featureset.members])
+
+    def get_featureset(self) -> ln.FeatureSet:
+        """Retrieve or create the FeatureSet associated with this MarkerType."""
+        fs_name = self.feature_set().name
+        if not self._check_marker_set_in_db(fs_name):
+            self._save_to_db(fs_name)
+        return ln.FeatureSet.filter(name__exact=fs_name).one()
+
+    def _save_to_db(self, fs_name: str) -> None:
+        """Save the FeatureSet to the database if it does not exist."""
+        fs = ln.FeatureSet(features=self.feature_set().features, dtype="cat[bionty.CellMarker]", name=fs_name)
         fs.save()
 
-    @cached_property
-    def _check_marker_set_in_db(self) -> bool:
-        """Check if the specified marker set exists in the database.
+    def _check_marker_set_in_db(self, fs_name: str) -> bool:
+        """Check if the specified marker set exists in the database."""
+        return ln.FeatureSet.filter(name__exact=fs_name).exists()
+
+    def name(self) -> str:
+        """Return the name of the MarkerType.
 
         Returns
         -------
-        bool
-            True if the marker set exists, False otherwise
+            The name of the MarkerType.
         """
-        return ln.FeatureSet.filter(name__exact=self.name).exists()
+        return marker_type_to_features[self].name
 
-    @cached_property
-    def _featureset(self) -> ln.FeatureSet:
-        """Get the FeatureSet from the database."""
-        return ln.FeatureSet.filter(name__exact=self.name).one()
-
-    @cached_property
-    def _featureset_members(self) -> list[str]:
-        return ns.natsorted([im.name for im in self._featureset.members])
-
-    def get_markers(self, return_type: Literal["featureset", "names"]) -> QuerySet | list[str]:
-        """Get markers and ensure they are saved to the database if not already.
-
-        Parameters
-        ----------
-        return_type : Literal["featureset", "names"]
-            Determines the format of the returned data:
-            - "featureset": returns the FeatureSet object
-            - "names": returns a list of marker names
+    def ontology(self) -> bt.models.BioRecord:
+        """Return the ontology associated with this MarkerType.
 
         Returns
         -------
-        QuerySet | list[str]
-            The FeatureSet or a list of marker names, depending on `return_type`
+            Return the ontology associated with this MarkerType.
         """
-        if not self._check_marker_set_in_db:
-            self._save_to_db()
-        match return_type:
-            case "featureset":
-                return self._featureset
-            case "names":
-                return self._featureset_members
+        return marker_type_to_features[self].ontology
+
+    def __repr__(self) -> str:
+        return self.name()
 
 
-cell_marker_set_map: Mapping[str, CellMarkerSet] = {
-    "immune_infiltrate": CellMarkerSet(ontology_set=Immune_Infiltrate_Markers),
-    "neuroblastoma": CellMarkerSet(ontology_set=Neuroblastoma_Markers),
-    "adrenergic": CellMarkerSet(ontology_set=Adrenergic_Markers),
-    "mesenchymal": CellMarkerSet(ontology_set=Mesenchymal_Markers),
-    "stem_cell": CellMarkerSet(ontology_set=Stem_Cell_Markers),
-    "intracellular": CellMarkerSet(ontology_set=Intracellular_Markers),
-    "tissue_structure": CellMarkerSet(ontology_set=Tissue_Structure_Markers),
-    "cell_surface": CellMarkerSet(ontology_set=Cell_Surface_Markers),
+marker_type_to_features: Mapping[MarkerSet, OntologySet] = {
+    MarkerSet.IMMUNE_INFILTRATE: Immune_Infiltrate_Markers,
+    MarkerSet.NEUROBLASTOMA: Neuroblastoma_Markers,
+    MarkerSet.ADRENERGIC: Adrenergic_Markers,
+    MarkerSet.MESENCHYMAL: Mesenchymal_Markers,
+    MarkerSet.STEM_CELL: Stem_Cell_Markers,
+    MarkerSet.INTRACELLULAR: Intracellular_Markers,
+    MarkerSet.TISSUE_STRUCTURE: Tissue_Structure_Markers,
+    MarkerSet.CELL_SURFACE: Cell_Surface_Markers,
 }
+
 """Mapping of cell marker sets to their corresponding FeatureSet objects."""
