@@ -48,6 +48,9 @@ dependencies = [
     "hvplot>=0.10.0",
     "selenium>=4.25.0",
     "pymupdf>=1.24.11",
+    "seaborn-objects-recipes>=0.1.2",
+    "boost-histogram>=1.5.0",
+    "fa2-modified>=0.3.10",
 ]
 
 [project.optional-dependencies]

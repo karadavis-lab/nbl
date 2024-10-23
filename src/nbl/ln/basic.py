@@ -2,13 +2,15 @@ from typing import Literal
 
 import lamindb as ln
 
-from .featuresets import cell_marker_set_map
+from .featuresets import MarkerSet, marker_type_to_features
 
 
 class CellMarkerSetCatalog:
     """Catalog of multiple cell marker feature sets."""
 
-    def __init__(self, cell_marker_set: str, return_type: Literal["featureset", "names"]) -> ln.FeatureSet | list[str]:
+    def __init__(
+        self, cell_marker_set: MarkerSet, return_type: Literal["featureset", "names"]
+    ) -> ln.FeatureSet | list[str]:
         """Returns the FeatureSet or a list of marker names, depending on `return_type` for a given cell marker set.
 
         Parameters
@@ -34,7 +36,7 @@ class CellMarkerSetCatalog:
         --------
         >>> cmc = CellMarkerSetCatalog(cell_marker_set="immune_infiltrate", return_type="featureset")
         """
-        self._cell_marker_set_map = cell_marker_set_map
+        self._cell_marker_set_map = marker_type_to_features
         self._return_type = return_type
 
         # simple test to validate param value
