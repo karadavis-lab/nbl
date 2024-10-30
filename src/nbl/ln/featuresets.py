@@ -53,6 +53,16 @@ Neuroblastoma_Markers = OntologySet(
     ontology=bt.CellMarker,
 )
 
+Neuroblastoma_Markers_Extra = OntologySet(
+    name="Neuroblastoma Markers Extra",
+    features=[
+        cm_lookup.trka,
+        cm_lookup.trkb,
+        cm_lookup.synaptophysin,
+    ],
+    ontology=bt.CellMarker,
+)
+
 Adrenergic_Markers = OntologySet(
     name="Adrenergic Markers",
     features=[
@@ -105,75 +115,6 @@ Cell_Surface_Markers = OntologySet(
 )
 
 
-# @dataclass(init=False)
-# class CellMarkerSet:
-#     """Class to handle operations related to cell markers.
-
-#     Returns
-#     -------
-#     CellMarkerSet
-#         A CellMarkerSet object
-#     """
-
-#     name: str
-#     features: list[Record]
-#     ontology: BioRecord
-#     featureset: ln.FeatureSet
-
-#     def __init__(self, ontology_set: OntologySet):
-#         self.features = ontology_set.features
-#         self.name = ontology_set.name
-#         self.ontology = ontology_set.ontology
-
-#     def _save_to_db(self) -> None:
-#         """Save the FeatureSet to the database."""
-#         fs = ln.FeatureSet(features=self.features, dtype="cat[bionty.CellMarker]", name=self.name)
-#         fs.save()
-
-#     @cached_property
-#     def _check_marker_set_in_db(self) -> bool:
-#         """Check if the specified marker set exists in the database.
-
-#         Returns
-#         -------
-#         bool
-#             True if the marker set exists, False otherwise
-#         """
-#         return ln.FeatureSet.filter(name__exact=self.name).exists()
-
-#     @cached_property
-#     def _featureset(self) -> ln.FeatureSet:
-#         """Get the FeatureSet from the database."""
-#         return ln.FeatureSet.filter(name__exact=self.name).one()
-
-#     @cached_property
-#     def _featureset_members(self) -> list[str]:
-#         return ns.natsorted([im.name for im in self._featureset.members])
-
-#     def get_markers(self, return_type: Literal["featureset", "names"]) -> QuerySet | list[str]:
-#         """Get markers and ensure they are saved to the database if not already.
-
-#         Parameters
-#         ----------
-#         return_type : Literal["featureset", "names"]
-#             Determines the format of the returned data:
-#             - "featureset": returns the FeatureSet object
-#             - "names": returns a list of marker names
-
-#         Returns
-#         -------
-#         QuerySet | list[str]
-#             The FeatureSet or a list of marker names, depending on `return_type`
-#         """
-#         if not self._check_marker_set_in_db:
-#             self._save_to_db()
-#         match return_type:
-#             case "featureset":
-#                 return self._featureset
-#             case "names":
-#                 return self._featureset_members
-
-
 class MarkerSet(Enum):
     """An Enum class representing different marker sets."""
 
@@ -185,6 +126,7 @@ class MarkerSet(Enum):
     INTRACELLULAR = "intracellular"
     TISSUE_STRUCTURE = "tissue_structure"
     CELL_SURFACE = "cell_surface"
+    NEUROBLASTOMA_EXTRA = "neuroblastoma_extra"
 
     def feature_set(self) -> OntologySet:
         """Get the OntologySet associated with this MarkerType.
@@ -252,6 +194,7 @@ marker_type_to_features: Mapping[MarkerSet, OntologySet] = {
     MarkerSet.INTRACELLULAR: Intracellular_Markers,
     MarkerSet.TISSUE_STRUCTURE: Tissue_Structure_Markers,
     MarkerSet.CELL_SURFACE: Cell_Surface_Markers,
+    MarkerSet.NEUROBLASTOMA_EXTRA: Neuroblastoma_Markers_Extra,
 }
 
 """Mapping of cell marker sets to their corresponding FeatureSet objects."""
