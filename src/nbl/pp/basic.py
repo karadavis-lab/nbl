@@ -13,7 +13,7 @@ from nbl.util import _extract_layer_from_sdata, write_elements
 
 def arcsinh_transform(
     sdata: sd.SpatialData,
-    table_names: str | list[str] = None,
+    table_names: str | Sequence[str] | Mapping[str, str] = None,
     shift_factor: int | float | Mapping[str, int | float] = 0,
     scale_factor: int | float | Mapping[str, int | float] = 150,
     method: Literal["replace", "layer", "new table"] = "new table",
@@ -60,29 +60,54 @@ def arcsinh_transform(
         sdata = sd.SpatialData()
 
     """
+    # Normalize inputs
     table_keys = [table_names] if isinstance(table_names, str) else table_names
+
+    if isinstance(table_names, Mapping):
+        table_keys = list(table_names.keys())
+    elif isinstance(table_names, str):
+        table_keys = [table_names]
+    elif isinstance(table_names, Sequence):
+        table_keys = table_names
+    else:
+        raise ValueError("`table_names` must be a string, sequence, or mapping")
+
+    new_tables = []
 
     for table in table_keys:
         adata: ad.AnnData = sdata.tables[table]
-        if sparse.issparse(adata.X):
-            transformed_X: NDArray = np.arcsinh(shift_factor + (adata.X.toarray() * scale_factor))
-        else:
-            transformed_X: NDArray = np.arcsinh(shift_factor + (adata.X * scale_factor))
+        X: NDArray = adata.X.toarray() if sparse.issparse(adata.X) else adata.X
+        transformed_X = np.arcsinh(shift_factor + (X * scale_factor))
 
+        # Get new name for this table
         if method == "replace":
             adata.X = transformed_X
         elif method == "layer":
-            adata.layers[f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"] = transformed_X
+            new_name = (
+                table_names[table]
+                if isinstance(table_names, Mapping)
+                else f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"
+            )
+            adata.layers[new_name] = transformed_X
+            adata.uns["layer_info"] = {new_name: {"shift_factor": shift_factor, "scale_factor": scale_factor}}
         elif method == "new table":
-            new_table: ad.AnnData = adata.copy()
+            new_table = adata.copy()
             new_table.X = transformed_X
-            sdata.tables[f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"] = new_table
+            new_name = (
+                table_names[table]
+                if isinstance(table_names, Mapping)
+                else f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"
+            )
+            new_table.uns["layer_info"] = {"X": {"shift_factor": shift_factor, "scale_factor": scale_factor}}
+            sdata.tables[new_name] = new_table
+            new_tables.append(new_name)
 
     if write:
         if method in ["replace", "layer"]:
             write_elements(sdata=sdata, elements={"tables": table_keys})
         elif method == "new table":
-            write_elements(sdata=sdata, elements={"tables": [f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"]})
+            write_elements(sdata=sdata, elements={"tables": new_tables})
+
     return None if inplace else sdata
 
 

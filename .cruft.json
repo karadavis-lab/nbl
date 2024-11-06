@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/scverse/cookiecutter-scverse",
-  "commit": "aa877587e59c855e2464d09ed7678af00999191a",
+  "commit": "b76a83fb58c1d057a7db248be00bd7d634dabe8c",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -10,8 +10,9 @@
       "author_full_name": "Sricharan Reddy Varra",
       "author_email": "srivarra@stanford.edu",
       "github_user": "karadavis-lab",
-      "project_repo": "https://github.com/karadavis-lab/nbl",
+      "github_repo": "nbl",
       "license": "MIT License",
+      "ide_integration": true,
       "_copy_without_render": [
         ".github/workflows/build.yaml",
         ".github/workflows/test.yaml",

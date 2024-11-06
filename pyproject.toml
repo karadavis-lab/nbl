@@ -1,119 +1,153 @@
 [build-system]
 build-backend = "hatchling.build"
-requires = ["hatchling", "hatch-vcs"]
+requires = [ "hatch-vcs", "hatchling" ]
 
 [project]
 name = "nbl"
-dynamic = ["version"]
 description = "nbl"
 readme = "README.md"
-requires-python = ">=3.11"
 license = { file = "LICENSE" }
-authors = [{ name = "Sricharan Reddy Varra" }]
 maintainers = [
-    { name = "Sricharan Reddy Varra", email = "srivarra@stanford.edu" },
+  { name = "Sricharan Reddy Varra", email = "srivarra@stanford.edu" },
 ]
-urls.Documentation = "https://nbl.readthedocs.io/"
-urls.Source = "https://github.com/karadavis-lab/nbl"
-urls.Home-page = "https://github.com/karadavis-lab/nbl"
+authors = [ { name = "Sricharan Reddy Varra" } ]
+requires-python = ">=3.11"
+# optional-dependencies.torch = [
+#   "torch>=2.5.1",
+#   "lightning>=2.4.0",
+#   "torchdata>=0.9.0",
+# ]
+
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dynamic = [ "version" ]
 dependencies = [
-    "anndata",
-    # for debug logging (referenced from the issue template)
-    "session-info",
-    "spatialdata @ git+https://github.com/srivarra/spatialdata@fsspec_bump",
-    "spatialdata-plot @ git+https://github.com/scverse/spatialdata-plot@main",
-    "xarray[accel,parallel]>=2024.7.0",
-    "dask[array,distributed,diagnostics]>=2024.8.0",
-    "dask-image>=2024.5.3",
-    "numpy",
-    "numba>=0.60.0",
-    "pandas[performance,excel]>=2.2.2",
-    "matplotlib>=3.9.1",
-    "marsilea>=0.4.3",
-    "treescope>=0.1.1",
-    "wandb>=0.17.6",
-    "natsort>=8.4.0",
-    "einx>=0.3.0",
-    "flox>=0.9.9",
-    "universal-pathlib>=0.2.2",
-    "flowsom @ git+https://github.com/saeyslab/FlowSOM_Python",
-    "ipycytoscape>=1.3.3",
-    "xarray-einstats[einops,numba]>=0.7.0",
-    "xbatcher>=0.3.0",
-    "altair[all]>=5.3.0",
-    "great-tables>=0.10.0",
-    "numpydantic[zarr,dask]>=1.3.0",
-    "sklearn-ann[annlibs]>=0.1.2",
-    "leidenalg>=0.10.2",
-    "hvplot>=0.10.0",
-    "selenium>=4.25.0",
-    "pymupdf>=1.24.11",
-    "seaborn-objects-recipes>=0.1.2",
-    "boost-histogram>=1.5.0",
-    "fa2-modified>=0.3.10",
+  "altair[all]>=5.4.1",
+  "anatomize",
+  "anndata",
+  "anndata-tools",
+  "boost-histogram>=1.5",
+  "dask[array,distributed,diagnostics]>=2024.10",
+  "dask-image>=2024.5.3",
+  "einx>=0.3",
+  "fa2-modified>=0.3.10",
+  "flowsom",
+  "flox>=0.9.13",
+  "great-tables>=0.13",
+  "hvplot>=0.11.1",
+  "ipycytoscape>=1.3.3",
+  "leidenalg>=0.10.2",
+  "marsilea>=0.4.3",
+  "matplotlib>=3.9.2",
+  "narwhals>=1.13.2",
+  "natsort>=8.4",
+  "numba>=0.60",
+  "numpy",
+  "numpydantic[zarr,dask]>=1.6.4",
+  "pandas[performance,excel]>=2.2.3",
+  "polars>=1.12",
+  "seaborn-objects-recipes>=0.1.3",
+  # for debug logging (referenced from the issue template)
+  "session-info",
+  "sklearn-ann[annlibs]>=0.1.2",
+  "spaco-release",
+  "spatialdata>=0.2.3",
+  "spatialdata-plot>=0.2.7",
+  "squidpy>=1.6.1",
+  "universal-pathlib>=0.2.5",
+  "vitessce",
+  "wandb>=0.18.5",
+  "xarray[accel,parallel]<2024.10",
+  "xarray-einstats[einops,numba]>=0.8",
+  "xbatcher>=0.4",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pre-commit",
-    "twine>=4.0.2",
-    "tach>=0.9.3",
-    "ruff>=0.5.7",
-    "nb-clean>=3.3.0",
+optional-dependencies.db = [
+  "faker>=30.8.2",
+  "faker-biology>=0.6.4",
+  "fsspec[git,s3]",
+  "graphviz>=0.20.3",
+  "ipylab>=1",
+  "lamindb[jupyter,bionty,erdiagram,zarr,aws]>=0.76.15",
 ]
-doc = [
-    "docutils>=0.8,!=0.18.*,!=0.19.*",
-    "sphinx>=4",
-    "sphinx-book-theme>=1.0.0",
-    "myst-nb>=1.1.0",
-    "sphinxcontrib-bibtex>=1.0.0",
-    "setuptools",                      # Until pybtex >0.23.0 releases: https://bitbucket.org/pybtex-devs/pybtex/issues/169/
-    "sphinx-autodoc-typehints",
-    "sphinxext-opengraph",
-    # For notebooks
-    "ipykernel",
-    "ipython",
-    "sphinx-copybutton",
-    "pandas",
-    "esbonio",
-    "jupyterlite-sphinx",
-    "jupyterlite-pyodide-kernel",
-    "sphinx-autobuild",
-    "sphinx-toolbox>=3.7.0",
-    "sphinx-autosummary-accessors",
-
+optional-dependencies.dev = [
+  "nb-clean>=4.0.1",
+  "pre-commit",
+  "ruff>=0.7.2",
+  "twine>=5.1.1",
 ]
-test = ["pytest", "coverage"]
-nb = ["jupyterlab", "notebook", "ipylab>=1.0.0", "buckaroo>=0.6.12"]
-db = [
-    "lamindb[jupyter,bionty,erdiagram,zarr,aws]>=0.75.1",
-    "faker>=26.3.0",
-    "faker-biology>=0.6.4",
-    "graphviz>=0.20.3",
-    "ipylab>=1.0.0",
+optional-dependencies.doc = [
+  "docutils>=0.21.2",
+  "esbonio",
+  # For notebooks
+  "ipykernel",
+  "ipython",
+  "jupyterlite-pyodide-kernel",
+  "jupyterlite-sphinx",
+  "myst-nb>=1.1.2",
+  "pandas",
+  "setuptools",                   # Until pybtex >0.23.0 releases: https://bitbucket.org/pybtex-devs/pybtex/issues/169/
+  "sphinx>=8.1.3",
+  "sphinx-autobuild",
+  "sphinx-autodoc-typehints",
+  "sphinx-autosummary-accessors",
+  "sphinx-book-theme>=1.1.3",
+  "sphinx-copybutton",
+  "sphinx-toolbox>=3.8.1",
+  "sphinxcontrib-bibtex>=2.6.3",
+  "sphinxext-opengraph",
 ]
-torch = ["torch>=2.4.0", "lightning>=2.4.0", "pykan>=0.2.4", "torchdata>=0.8.0"]
-
-[tool.coverage.run]
-source = ["nbl"]
-omit = ["**/test_*.py"]
+optional-dependencies.jax = [
+  "equinox>=0.11.8",
+  "jax>=0.4.35",
+  "jax-metal>=0.1.1",
+  "jaxlib>=0.4.35",
+]
+optional-dependencies.nb = [
+  "buckaroo>=0.7.11",
+  "ipylab>=1",
+  "jupyter-bokeh>=4.0.5",
+  "jupyterlab",
+  "notebook",
+]
+optional-dependencies.test = [ "coverage", "pytest" ]
+urls.Documentation = "https://nbl.readthedocs.io/"
+urls.Home-page = "https://github.com/karadavis-lab/nbl"
+urls.Source = "https://github.com/karadavis-lab/nbl"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = [ "tests" ]
 xfail_strict = true
 addopts = [
-    "--import-mode=importlib", # allow using test files with same name
+  "--import-mode=importlib", # allow using test files with same name
 ]
 
+[tool.coverage.run]
+source = [ "nbl" ]
+omit = [ "**/test_*.py" ]
+
+[tool.uv.sources]
+flowsom = { git = "https://github.com/saeyslab/FlowSOM_Python", branch = "main" }
+spatialdata = { git = "https://github.com/srivarra/spatialdata", branch = "fsspec_bump" }
+spatialdata-plot = { git = "https://github.com/scverse/spatialdata-plot", branch = "main" }
+# napari = { git = "https://github.com/napari/napari", branch = "main" }
+# napari-spatialdata = { git = "https://github.com/scverse/napari-spatialdata", branch = "main" }
+vitessce = { git = "https://github.com/vitessce/vitessce-python", branch = "main" }
+spaco-release = { git = "https://github.com/BrainStOrmics/Spaco", branch = "main" }
+anndata-tools = { git = "https://github.com/srivarra/anndata-tools", branch = "main" }
+anatomize = { git = "https://github.com/srivarra/anatomize", branch = "main" }
 
 [tool.cruft]
 skip = [
-    "tests",
-    "src/**/__init__.py",
-    "src/**/basic.py",
-    "docs/api.md",
-    "docs/changelog.md",
-    "docs/references.bib",
-    "docs/references.md",
-    "docs/notebooks/example.ipynb",
+  "tests",
+  "src/**/__init__.py",
+  "src/**/basic.py",
+  "docs/api.md",
+  "docs/changelog.md",
+  "docs/references.bib",
+  "docs/references.md",
+  "docs/notebooks/example.ipynb",
 ]

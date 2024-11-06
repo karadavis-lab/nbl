@@ -1,25 +1,22 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from itertools import chain
-from typing import Any, Literal, TypedDict, Unpack
+from typing import Literal
 
 import anndata as ad
 import natsort as ns
 import numpy as np
 import pandas as pd
-import scanpy as sc
 import spatialdata as sd
 from dask import delayed
-from leidenalg.VertexPartition import MutableVertexPartition
+from more_itertools import one
 from numpydantic import NDArray
 
-from nbl.util import DaskSetupDelayed
+from nbl.util import write_elements
 from nbl.util.decorators import catch_warnings
-from nbl.util.utils import _extract_layer_from_sdata
 
-from ._utils import _rp_stats_table_fov, _scores, _set_unique_obs_names, _strip_var_names
+from ._utils import ScoreFunctions, _rp_stats_table_fov, _set_unique_obs_names, _strip_var_names
 
 
-@catch_warnings
 def aggregate_images_by_labels(
     sdata: sd.SpatialData,
     label_type: str,
@@ -67,27 +64,30 @@ def aggregate_images_by_labels(
     - The function uses delayed execution via Dask for parallel processing and improved performance.
     """
     all_coords = ns.natsorted(sdata.coordinate_systems)
-    _tasks = []
-    for coord in all_coords:
-        sdata_coord = delayed(sdata.filter_by_coordinate_system)(coordinate_system=coord)
-        t1 = delayed(sdata_coord.aggregate)(
-            values=coord,
-            by=f"{coord}_{label_type}",
+
+    filtered_sdatas = {coord: sdata.filter_by_coordinate_system(coordinate_system=coord) for coord in all_coords}
+
+    @delayed
+    @catch_warnings
+    def process_fov(fov_sdata: sd.SpatialData, fov: str):
+        result = fov_sdata.aggregate(
+            values=fov,
+            by=f"{fov}_{label_type}",
             table_name=table_name,
-            target_coordinate_system=coord,
+            target_coordinate_system=fov,
             agg_func=agg_func,
             region_key=region_key,
             instance_key=instance_key,
         )
-        t2 = delayed(_set_unique_obs_names)(sdata=t1, coord=coord, table_name=table_name)
-        t3 = delayed(_strip_var_names)(sdata=t2, table_name=table_name, agg_func=agg_func)
-        _tasks.append(t3)
+        result = _set_unique_obs_names(result, fov, table_name)
+        result = _strip_var_names(result, table_name, agg_func)
+        return result
 
-    # Initialize Dask Runner and compute tasks
-    dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
-    _sdatas = dask_runner.compute()
+    tasks = [process_fov(filtered_sdatas[coord], coord) for coord in all_coords]
 
-    # Concatenate the results and update the sdata table
+    optimized_tasks = delayed(lambda x: x)(tasks)
+
+    _sdatas = optimized_tasks.compute()
     adata = sd.concatenate(
         sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
     ).tables[table_name]
@@ -95,8 +95,6 @@ def aggregate_images_by_labels(
     sdata.tables[table_name] = adata
 
     if write:
-        from nbl.util import write_elements
-
         write_elements(sdata=sdata, elements={"tables": table_name})
 
     return None if inplace else sdata
@@ -117,28 +115,27 @@ def regionprops(
 
     Parameters
     ----------
-    sdata : sd.SpatialData
+    sdata
         A SpatialData object.
-    label_type : str
+    label_type
         The type of label used to identify regions of interest (e.g., 'whole_cell', 'nucleus').
-    table_name : str
+    table_name
         The name of the table within the SpatialData object where the statistics will be added.
-    region_key : str, optional
+    region_key
         The key that represents regions in the concatenated data, by default "region".
-    instance_key : str, optional
+    instance_key
         The key that uniquely identifies instances within the label type, by default "instance_id".
-    properties : list[str] | None, optional
+    properties
         A list of region properties to compute (e.g., area, perimeter). If None, defaults to ["label", "centroid"].
-    inplace : bool, optional
-        If True, modifies the input SpatialData object in place. Otherwise, returns a new SpatialData object.
-        Default is True.
-    write : bool, optional
-        If True, writes the updated table to disk. Default is True.
+    inplace
+        If `True`, modifies the input SpatialData object in place. Otherwise, returns a new SpatialData object.
+        Default is `True`.
+    write
+        If `True`, writes the updated table to disk. Default is `True`.
 
     Returns
     -------
-    sd.SpatialData | None
-        The updated SpatialData object if inplace is False, otherwise None.
+    The updated `SpatialData` object if inplace is `False`, otherwise `None`.
 
     Notes
     -----
@@ -163,37 +160,49 @@ def regionprops(
 
     properties_names = list(chain.from_iterable(("y", "x") if x == "centroid" else (x,) for x in properties.copy()))
 
-    _tasks = []
+    filtered_sdatas = {coord: sdata.filter_by_coordinate_system(coordinate_system=coord) for coord in all_coords}
 
-    for coord in all_coords:
-        fov_sdata: sd.SpatialData = delayed(sdata.filter_by_coordinate_system)(
-            coordinate_system=coord, filter_tables=True, include_orphan_tables=False
+    tasks = [
+        delayed(_regionprops_fov)(
+            filtered_sdatas[coord], label_type, table_name, instance_key, properties, properties_names
         )
-        t1 = delayed(_rp_stats_table_fov)(
-            sdata=fov_sdata,
-            label_type=label_type,
-            table_name=table_name,
-            instance_key=instance_key,
-            properties=properties,
-            properties_names=properties_names,
-        )
-        t2 = delayed(_set_unique_obs_names)(sdata=t1, coord=coord, table_name=table_name)
+        for coord in all_coords
+    ]
 
-        _tasks.append(t2)
-    dask_runner = DaskSetupDelayed(delayed_objects=_tasks)
+    optimized_tasks = delayed(lambda x: x)(tasks)
 
-    _sdatas = dask_runner.compute()
+    _sdatas = optimized_tasks.compute()
+
     adata: ad.AnnData = sd.concatenate(
         sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
     ).tables[table_name]
+
     sdata.tables[table_name] = adata
 
     if write:
-        from nbl.util import write_elements
-
         write_elements(sdata=sdata, elements={"tables": table_name})
 
     return None if inplace else sdata
+
+
+def _regionprops_fov(
+    sdata: sd.SpatialData,
+    label_type: str,
+    table_name: str,
+    instance_key: str,
+    properties: list[str] | None = None,
+    properties_names: list[str] | None = None,
+) -> sd.SpatialData:
+    _sdata = _rp_stats_table_fov(
+        sdata=sdata,
+        label_type=label_type,
+        table_name=table_name,
+        instance_key=instance_key,
+        properties=properties,
+        properties_names=properties_names,
+    )
+    _set_unique_obs_names(sdata=_sdata, coord=one(sdata.coordinate_systems), table_name=table_name)
+    return _sdata
 
 
 def quantile(
@@ -219,10 +228,10 @@ def quantile(
         The variable / marker to compute the quantile for.
     q
         The quantile to compute.
-    inplace, optional
+    inplace
         If True modifies the input SpatialData object in place. Otherwise, returns a new SpatialData object.
         Default is True.
-    write, optional
+    write
         If True, writes the updated table to disk. Default is True.
 
     Returns
@@ -238,8 +247,6 @@ def quantile(
     _add_quantile_to_uns(adata=table, var=var, q=q, v=v)
 
     if write:
-        from nbl.util import write_elements
-
         write_elements(sdata=sdata, elements={"tables": table_name})
 
     return None if inplace else sdata
@@ -380,173 +387,8 @@ def compute_score(
     The updated SpatialData object if inplace is False, otherwise None.
     """
     table: ad.AnnData = sdata.tables[table_name]
-    _score_func = _scores[score_method]
+    _score_func = ScoreFunctions()[score_method]
     if score_col_name is None:
         score_col_name = f"{score_method}_{obs_1}_{obs_2}_score"
     table.obs[score_col_name] = _score_func(x1=table.obs[obs_1], x2=table.obs[obs_2], eps=eps)
     return None if inplace else sdata
-
-
-class DiffmapKwargs(TypedDict):
-    """Keyword arguments for the Diffmap function from Scanpy."""
-
-    n_comps: int = 2
-    random_state: int | None | Any = 0
-
-
-def diffmap(
-    sdata: sd.SpatialData,
-    table_name: str,
-    layer: str | None = None,
-    neighbors_key: str | None = None,
-    vars: Sequence[str] | None = None,
-    inplace: bool = True,
-    write: bool = True,
-    **sc_diffmap_kwargs: Unpack[DiffmapKwargs],
-) -> None | sd.SpatialData:
-    """Computes the diffusion maps for a given table in the SpatialData object.
-
-    Parameters
-    ----------
-    sdata
-        _description_
-    table_name
-        _description_
-    layer, optional
-        _description_, by default None
-    neighbors_key, optional
-        _description_, by default None
-    inplace, optional
-        _description_, by default True
-    write, optional
-        _description_, by default True
-
-    Returns
-    -------
-        _description_
-    """
-    table: ad.AnnData = _extract_layer_from_sdata(sdata=sdata, vars=vars, table_name=table_name, layer=layer)
-
-    q: ad.AnnData = sc.tl.diffmap(adata=table, neighbors_key=neighbors_key, copy=True, **sc_diffmap_kwargs)
-
-    sdata.tables[table_name].obsm[f"{layer}_diffmap"] = q.obsm["X_diffmap"]
-    sdata.tables[table_name].uns[f"{layer}_diffmap_evals"] = q.uns["diffmap_evals"]
-
-    return None if inplace else sdata
-
-
-class LeidenKwargs(TypedDict):
-    """Keyword arguments for the Leiden function from Scanpy."""
-
-    resolution: float = 1
-    restrict_to: tuple[str, Sequence[str]] | None = None
-    random_state: int | None | Any = 0
-    adjacency: Any | None = None
-    directed: bool | None = None
-    use_weights: bool = True
-    n_iterations: int = -1
-    partition_type: type[MutableVertexPartition] | None = None
-    flavor: Literal["leidenalg", "igraph"] = "leidenalg"
-
-
-def leiden(
-    sdata: sd.SpatialData,
-    table_name: str,
-    layer: str,
-    neighbors_key: str,
-    key_added: str,
-    vars: Sequence[str] | None = None,
-    inplace: bool = True,
-    write: bool = True,
-    **sc_leiden_kwargs: Unpack[LeidenKwargs],
-) -> None | sd.SpatialData:
-    """Compute Leiden clustering algorithm for a given table in the SpatialData object.
-
-    Parameters
-    ----------
-    sdata
-        _description_
-    table_name
-        _description_
-    layer
-        _description_
-    neighbors_key
-        _description_
-    key_added
-        _description_
-    vars, optional
-        _description_, by default None
-    inplace, optional
-        _description_, by default True
-    write, optional
-        _description_, by default True
-
-    Returns
-    -------
-        _description_
-    """
-    table: ad.AnnData = _extract_layer_from_sdata(sdata=sdata, vars=vars, table_name=table_name, layer=layer)
-    q: ad.AnnData = sc.tl.leiden(
-        adata=table, key_added=key_added, neighbors_key=neighbors_key, copy=True, **sc_leiden_kwargs
-    )
-
-    sdata.tables[table_name].obs = sdata.tables[table_name].obs.merge(
-        right=q.obs[key_added], left_index=True, right_index=True
-    )
-    sdata.tables[table_name].uns[key_added] = q.uns[key_added]
-
-    return None if inplace else sdata
-
-
-class UmapKwargs(TypedDict):
-    """Keyword arguments for the Umap function from Scanpy."""
-
-    min_dist: float = 0.5
-    spread: float = 1
-    n_components: int = 2
-    maxiter: int | None = None
-    alpha: float = 1
-    gamma: float = 1
-    negative_sample_rate: int = 5
-    init_pos: NDArray | None = "spectral"
-    random_state: Any = 0
-    a: float | None = None
-    b: float | None = None
-
-
-def umap(
-    sdata: sd.SpatialData,
-    table_name: str,
-    layer: str,
-    neighbors_key: str,
-    vars: Sequence[str] | None = None,
-    inplace: bool = True,
-    write: bool = True,
-    **sc_umap_kwargs: Unpack[UmapKwargs],
-) -> ad.AnnData | None:
-    """Compute UMAP embeddings for a given table in the SpatialData object.
-
-    Parameters
-    ----------
-    sdata
-        _description_
-    table_name
-        _description_
-    layer
-        _description_
-    neighbors_key
-        _description_
-    vars, optional
-        _description_, by default None
-    inplace, optional
-        _description_, by default True
-    write, optional
-        _description_, by default True
-
-    Returns
-    -------
-        _description_
-    """
-    table = _extract_layer_from_sdata(sdata=sdata, vars=vars, table_name=table_name, layer=layer)
-    q = sc.tl.umap(adata=table, neighbors_key=neighbors_key, copy=True, **sc_umap_kwargs)
-    return q

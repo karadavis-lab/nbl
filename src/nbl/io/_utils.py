@@ -15,9 +15,9 @@ def _rechunk(si: xr.DataArray, chunks: tuple[int, int, int]) -> xr.DataArray:
 
     Parameters
     ----------
-    si : xr.DataArray
+    si
         The SpatialImage to rechunk.
-    chunks : tuple[int, int, int]
+    chunks
         The chunks to rechunk the SpatialImage to.
 
     Returns
@@ -45,11 +45,11 @@ def _parse_image(
 
     Parameters
     ----------
-    fov_path : UPath
+    fov_path
         Path to the folder containing the tiffs.
-    array_type : Literal["numpy", "cupy"]
+    array_type
         The array type to use for the data.
-    rechunk : bool | tuple[int, int, int]
+    rechunk
         If True, the data will be rechunked to the specified chunk size. If a tuple is provided, it will be used as the chunk size.
 
     Returns
@@ -87,13 +87,13 @@ def _parse_labels(
 
     Parameters
     ----------
-    label_path : UPath
+    label_path
         The path to the label image.
-    fov_name : str
+    fov_name
         The name of the FOV.
-    array_type : Literal["numpy", "cupy"]
+    array_type
         The array type to use for the data.
-    rechunk : tuple[int, int, int] | None
+    rechunk
         The chunk size to use for rechunking the data.
 
     Returns
@@ -126,19 +126,18 @@ def _convert_label_to_labels(
 
     Parameters
     ----------
-    label_path : UPath
+    label_path
         The file path to the label image.
-    fov_name : str
+    fov_name
         The name of the FOV.
-    array_type : Literal["numpy", "cupy"]
+    array_type
         The array type to use for the data.
-    rechunk : tuple[int, int, int] | None
+    rechunk
         The chunk size to use for rechunking the data.
 
     Returns
     -------
-    xr.DataArray
-        The parsed label image.
+    The parsed label image.
     """
     label_image = imread(fname=label_path, arraytype=array_type)
 

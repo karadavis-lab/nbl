@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from collections.abc import Callable
 
 import anndata as ad
 import dask.array as da
@@ -17,9 +18,9 @@ def _rp_stats(label: NDArray, properties: list[str]) -> NDArray:
 
     Parameters
     ----------
-    label : NDArray
+    label
         The label image.
-    properties : list[str]
+    properties
         The properties to compute.
 
     Returns
@@ -46,17 +47,17 @@ def _rp_stats_table_fov(
 
     Parameters
     ----------
-    sdata : sd.SpatialData
+    sdata
         A SpatialData object..
-    label_type : str
+    label_type
         The type of label used to identify regions of interest (e.g., 'whole_cell', 'nucleus').
-    table_name : str
+    table_name
         The name of the table within the SpatialData object where the region properties will be added.
-    instance_key : str
+    instance_key
         The key that uniquely identifies instances within the label type.
-    properties : list[str]
+    properties
         A list of region properties to compute (e.g., area, perimeter).
-    properties_names : list[str]
+    properties_names
         The names of the properties to be used in the output table. These should correspond
         to the computed properties in the same order.
 
@@ -73,10 +74,10 @@ def _rp_stats_table_fov(
     - It uses xarray's `apply_ufunc` to parallelize the calculation.
     - The computed properties are merged with the existing table in the SpatialData object.
     """
-    n_obs: int = sdata.tables[table_name].n_obs
+    sdata_table: ad.AnnData = sdata.tables[table_name]
+    n_obs: int = sdata_table.n_obs
     coord: str = one(sdata.coordinate_systems)
 
-    n_properties = len(properties_names)
     rp = xr.apply_ufunc(
         _rp_stats,
         sdata.labels[f"{coord}_{label_type}"],
@@ -85,23 +86,29 @@ def _rp_stats_table_fov(
         output_core_dims=[[instance_key, "property"]],
         dask="parallelized",
         output_dtypes=[np.float64],
-        dask_gufunc_kwargs={"output_sizes": {instance_key: n_obs, "property": n_properties}},
+        dask_gufunc_kwargs={
+            "output_sizes": {
+                instance_key: n_obs,
+                "property": len(properties_names),
+            }
+        },
     )
-
-    sdata_table: ad.AnnData = sdata.tables[table_name]
 
     rp_table = pd.DataFrame(
         data=rp.data,
         columns=properties_names,
         index=sdata_table.obs_names,
     )
+
     if "centroid" in properties:
-        rp_table_centroids: pd.DataFrame = rp_table[[Y, X]]
-        rp_table: pd.DataFrame = rp_table.drop(columns=[Y, X])
-        sdata_table.obsm["spatial"] = rp_table_centroids.to_numpy()
-    sdata_table.obs = sdata_table.obs.merge(right=rp_table, right_on="label", left_on=instance_key).drop(
+        spatial_coords = {"spatial": rp_table[[Y, X]].to_numpy()}
+        sdata_table.obsm.update(spatial_coords)
+        rp_table = rp_table.drop(columns=[Y, X])  # Use inplace=True
+
+    sdata_table.obs = sdata_table.obs.merge(rp_table, left_on=instance_key, right_on="label", how="left").drop(
         columns=["label"]
     )
+
     return sdata
 
 
@@ -145,11 +152,11 @@ def _strip_var_names(sdata: sd.SpatialData, table_name: str, agg_func: str) -> s
 
     Parameters
     ----------
-    sdata : sd.SpatialData
+    sdata
         The `SpatialData` object containing tables.
-    table_name : str
+    table_name
         The name of the table within the `SpatialData` object.
-    agg_func : str
+    agg_func
         The aggregation function used, which should be removed from the variable names.
 
     Returns
@@ -175,8 +182,7 @@ def _ratio_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
 
     Returns
     -------
-    NDArray
-        The ratio score between the two arrays.
+    The ratio score between the two arrays.
     """
     return x1 / (x2 + eps)
 
@@ -238,10 +244,22 @@ def _scaled_difference_score(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> ND
     return (x1 - x2) / (np.abs(x1 - x2) + eps)
 
 
-_scores = {
-    "ratio": _ratio_score,
-    "normalized_difference": _normalized_difference_score,
-    "log_ratio": _log_ratio_score,
-    "scaled_difference": _scaled_difference_score,
-}
-"""Mapping of score functions to their corresponding names."""
+class ScoreFunctions:
+    @staticmethod
+    def ratio(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+        return _ratio_score(x1, x2, eps)
+
+    @staticmethod
+    def normalized_difference(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+        return _normalized_difference_score(x1, x2, eps)
+
+    @staticmethod
+    def log_ratio(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+        return _log_ratio_score(x1, x2, eps)
+
+    @staticmethod
+    def scaled_difference(x1: NDArray, x2: NDArray, eps: float = 1e-10) -> NDArray:
+        return _scaled_difference_score(x1, x2, eps)
+
+    def __getitem__(self, key: str) -> Callable:
+        return getattr(self, key)
