@@ -1,29 +1,27 @@
 # nbl
 
-[![Tests][badge-tests]][link-tests]
-[![Documentation][badge-docs]][link-docs]
+[![Tests][badge-tests]][tests]
+[![Documentation][badge-docs]][documentation]
 
 [badge-tests]: https://img.shields.io/github/actions/workflow/status/karadavis-lab/nbl/test.yaml?branch=main
-[link-tests]: https://github.com/karadavis-lab/nbl/actions/workflows/test.yml
 [badge-docs]: https://img.shields.io/readthedocs/nbl
 
 nbl
 
 ## Getting started
 
-Please refer to the [documentation][link-docs]. In particular, the
-
--   [API documentation][link-api].
+Please refer to the [documentation][],
+in particular, the [API documentation][].
 
 ## Installation
 
-You need to have Python 3.10 or newer installed on your system. If you don't have
-Python installed, we recommend installing [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge).
+You need to have Python 3.10 or newer installed on your system.
+If you don't have Python installed, we recommend installing [Mambaforge][].
 
 There are several alternative options to install nbl:
 
 <!--
-1) Install the latest release of `nbl` from [PyPI][link-pypi]:
+1) Install the latest release of `nbl` from [PyPI][]:
 
 ```bash
 pip install nbl
@@ -38,20 +36,22 @@ pip install git+https://github.com/karadavis-lab/nbl.git@main
 
 ## Release notes
 
-See the [changelog][changelog].
+See the [changelog][].
 
 ## Contact
 
-For questions and help requests, you can reach out in the [scverse discourse][scverse-discourse].
-If you found a bug, please use the [issue tracker][issue-tracker].
+For questions and help requests, you can reach out in the [scverse discourse][].
+If you found a bug, please use the [issue tracker][].
 
 ## Citation
 
 > t.b.a
 
-[scverse-discourse]: https://discourse.scverse.org/
-[issue-tracker]: https://github.com/karadavis-lab/nbl/issues
-[changelog]: https://nbl.readthedocs.io/latest/changelog.html
-[link-docs]: https://nbl.readthedocs.io
-[link-api]: https://nbl.readthedocs.io/latest/api.html
-[link-pypi]: https://pypi.org/project/nbl
+[mambaforge]: https://github.com/conda-forge/miniforge#mambaforge
+[scverse discourse]: https://discourse.scverse.org/
+[issue tracker]: https://github.com/karadavis-lab/nbl/issues
+[tests]: https://github.com/karadavis-lab/nbl/actions/workflows/test.yml
+[documentation]: https://nbl.readthedocs.io
+[changelog]: https://nbl.readthedocs.io/en/latest/changelog.html
+[api documentation]: https://nbl.readthedocs.io/en/latest/api.html
+[pypi]: https://pypi.org/project/nbl

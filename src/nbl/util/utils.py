@@ -41,20 +41,20 @@ def _write_element(
     not_in_zarr_store: list[str],
     in_zarr_store: list[str],
 ):
-    """_summary_.
+    """Write an element to the SpatialData Zarr Store.
 
     Parameters
     ----------
-    sdata : sd.SpatialData
-        _description_
-    element_name : str
-        _description_
-    element_type : str
-        _description_
-    not_in_zarr_store : list[str]
-        _description_
-    in_zarr_store : list[str]
-        _description_
+    sdata
+        Writes the element to the SpatialData Zarr Store.
+    element_name
+        The name of the element to write.
+    element_type
+        The type of the element to write.
+    not_in_zarr_store
+        The names of the elements that are not in the SpatialData Zarr Store.
+    in_zarr_store
+        The names of the elements that are in the SpatialData Zarr Store.
     """
     if element_type == "tables":
         _update_and_sync_table(sdata=sdata, table_name=element_name)
@@ -73,14 +73,14 @@ def write_elements(
     sdata: sd.SpatialData,
     elements: Mapping[str, str | list[str]],
 ) -> None:
-    """_summary_.
+    """Write one or many elements to the SpatialData Zarr Store.
 
     Parameters
     ----------
-    sdata : sd.SpatialData
-        _description_
-    elements : Mapping[str, str  |  list[str]]
-        _description_
+    sdata
+        The SpatialData object to write elements to.
+    elements
+        A mapping of element types to the element names to write.
     """
     not_in_zarr_store, _in_zarr_store = sdata._symmetric_difference_with_zarr_store()
     for e_type, e_name in elements.items():
@@ -106,12 +106,12 @@ def write_elements(
 
 
 def _remove_x_axis_ticks(ax: plt.Axes) -> None:
-    """_summary_.
+    """Remove x-axis ticks from a matplotlib Axes object.
 
     Parameters
     ----------
-    ax : plt.Axes
-        _description_
+    ax
+        The matplotlib Axes object to remove x-axis ticks from.
     """
     ax.xaxis.set_major_locator(ticker.NullLocator())
     ax.xaxis.set_major_formatter(ticker.NullFormatter())
@@ -120,12 +120,12 @@ def _remove_x_axis_ticks(ax: plt.Axes) -> None:
 
 
 def _remove_y_axis_ticks(ax: plt.Axes) -> None:
-    """_summary_.
+    """Remove y-axis ticks from a matplotlib Axes object.
 
     Parameters
     ----------
-    ax : plt.Axes
-        _description_
+    ax
+        The matplotlib Axes object to remove y-axis ticks from.
     """
     ax.yaxis.set_major_locator(ticker.NullLocator())
     ax.yaxis.set_major_formatter(ticker.NullFormatter())
@@ -134,59 +134,61 @@ def _remove_y_axis_ticks(ax: plt.Axes) -> None:
 
 
 def _set_locator_formatter(ax: plt.Axes, axis: Literal["x", "y", "xy", "yx"]) -> None:
-    """_summary_.
+    """Set the locator and formatter for a matplotlib Axes object.
 
     Parameters
     ----------
     ax : plt.Axes
-        _description_
-    axis : Literal[&quot;x&quot;, &quot;y&quot;, &quot;xy&quot;, &quot;yx&quot;]
-        _description_
+        The matplotlib Axes object to set the locator and formatter for.
+    axis
+        The axis to set the locator and formatter for.
 
     Raises
     ------
     ValueError
-        _description_
+        If the axis contains characters other than 'x' or 'y'.
     """
-    match axis:
-        case "x":
-            _remove_x_axis_ticks(ax)
-        case "y":
-            _remove_y_axis_ticks(ax)
-        case "xy" | "yx":
-            _remove_x_axis_ticks(ax)
-            _remove_y_axis_ticks(ax)
-        case _:
-            raise ValueError("axis must be 'x', 'y' or 'xy' or 'yx'")
+    for char in axis:
+        match char:
+            case "x":
+                _remove_x_axis_ticks(ax)
+            case "y":
+                _remove_y_axis_ticks(ax)
+            case _:
+                raise ValueError("axis must only contain 'x' and/or 'y' characters")
 
 
-def remove_ticks(f: plt.Figure | plt.Axes | Iterable[plt.Axes], axis: Literal["x", "y", "xy", "yx"]) -> None:
+def remove_ticks(f: plt.Figure | plt.Axes | Iterable[plt.Axes], axis: str) -> None:
     """Removes ticks from the axis of a figure or axis object.
 
     If a figure is passed, the function will remove the axis-ticks of all the figure's axes.
 
     Args
     ----------
-    f : Figure | Axes | Iterable[Axes]
+    f
         The figure or axis object to remove the ticks from.
-    axis : Literal["x", "y", "xy", "yx"]
-        The axis to remove the ticks from. If "xy" or "yx" is passed, the function will remove
-        the ticks from both axes.
+    axis
+        The axis to remove the ticks from. Must contain only 'x' and/or 'y' characters.
 
     Raises
     ------
     ValueError
-        If f is not a Figure or Axis object.
+        If f is not a Figure or Axis object, or if axis contains invalid characters.
     """
+    if not all(char in {"x", "y"} for char in axis):
+        raise ValueError(f"axis must contain only 'x' and/or 'y' characters, not {axis}")
+
     match f:
         case plt.Figure():
-            axes = f.axes
-            [_set_locator_formatter(a, axis) for a in axes]
+            for a in f.axes:
+                _set_locator_formatter(a, axis)
         case plt.Axes():
             _set_locator_formatter(f, axis)
         case Iterable() | list() | np.ndarray():
-            assert all(isinstance(a, plt.Axes) for a in f), "f must be an iterable of Axes objects"
-            [_set_locator_formatter(a, axis) for a in f]
+            if not all(isinstance(a, plt.Axes) for a in f):
+                raise ValueError("f must be an iterable of Axes objects")
+            for a in f:
+                _set_locator_formatter(a, axis)
         case _:
             raise ValueError("f must be a Figure, an Axes object, or a list of Axes objects")
 
@@ -196,7 +198,7 @@ def _set_table_index(x: pd.Series):
 
     Parameters
     ----------
-    x : pd.Series
+    x
         A pandas Series object representing a row of the table, with at least 'region' and 'instance_id' fields.
 
     Returns
@@ -207,21 +209,22 @@ def _set_table_index(x: pd.Series):
     return f"{first(x.region.split('_'))}_{x.instance_id}"
 
 
-def reset_table_index(element: sd.SpatialData | ad.AnnData | pd.DataFrame, table: str | None = None) -> None:
+def reset_table_index[T: (sd.SpatialData, ad.AnnData, pd.DataFrame)](element: T, table: str | None = None) -> T:
     """Resets the index of the table based on 'region' and 'instance_id' columns.
 
     This function handles `SpatialData`, `AnnData`, and `DataFrame` objects.
 
     Parameters
     ----------
-    element : sd.SpatialData | ad.AnnData | pd.DataFrame
+    element
         The data structure containing the table for which the index needs to be reset.
-    table : str | None, optional
-        The table name in case of a SpatialData object, by default None.
+    table
+        The table name if the element is a SpatialData object, by default None.
 
     Returns
     -------
-    None
+    T
+        The input element with reset index.
 
     Raises
     ------

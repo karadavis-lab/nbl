@@ -8,6 +8,7 @@ buck-out/
 __pycache__/
 .mypy_cache/
 .ruff_cache/
+.*cache/
 
 # Distribution / packaging
 /build/

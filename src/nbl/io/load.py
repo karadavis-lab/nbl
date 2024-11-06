@@ -23,21 +23,18 @@ def convert_cohort(
 
     Parameters
     ----------
-    fov_dir : UPath
+    fov_dir
         The directory containing the field of view images.
-    label_dir : UPath
+    label_di
         The directory containing the label images.
-    filter_fovs: str | re.Pattern
+    filter_fovs:
         A regular expression pattern to filter the FOVs by.
-    file_path : UPath, optional
+    file_path
         The path to the Zarr Store to save the `SpatialData` objects to.
-    array_type : Literal["numpy";, "cupy], optional
+    array_type
         Array type for dask chunks. Available options: "numpy", "cupy".
-    return_sdata : bool, optional
+    return_sdata
         Whether to return the `SpatialData` object or not.
-
-    - The `array_type` parameter determines whether `numpy` or `cupy` arrays are used for the
-      underlying data structures, which can help with performance based on the execution environment.
 
     Returns
     -------
