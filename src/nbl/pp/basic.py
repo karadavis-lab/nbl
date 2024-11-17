@@ -149,6 +149,9 @@ def normalize_by_area(
             new_table = adata.copy()
             new_table.X = area_normalized_X
             sdata.tables["area_normalized"] = new_table
+
+    if write:
+        write_elements(sdata=sdata, elements={"tables": table_keys})
     return None if inplace else sdata
 
 

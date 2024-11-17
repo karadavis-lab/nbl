@@ -137,14 +137,6 @@ def regionprops(
     -------
     The updated `SpatialData` object if inplace is `False`, otherwise `None`.
 
-    Notes
-    -----
-    This function computes specified region properties for each region of interest in the spatial data,
-    and integrates these properties into the specified table within the SpatialData object.
-
-    - The function handles multiple coordinate systems present in the spatial data.
-    - The computed properties are merged with the existing table in the SpatialData object.
-    - The function uses delayed execution via Dask for parallel processing and improved performance.
     """
     if properties is None:
         properties = ["label", "centroid"]

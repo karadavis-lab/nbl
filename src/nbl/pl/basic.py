@@ -17,9 +17,12 @@ class BootStrapResult:
 
     Attributes
     ----------
-        idx: Index of the bootstrap iteration.
-        xx (NDArray): Array representing the x-values.
-        result (NDArray): Array containing the smoothed results.
+        idx
+            Index of the bootstrap iteration.
+        xx
+            Array representing the x-values.
+        result
+            Array containing the smoothed results.
     """
 
     idx: int

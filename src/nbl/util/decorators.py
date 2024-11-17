@@ -18,15 +18,14 @@ def get_annotation(bound: inspect.BoundArguments, parameter_name: str) -> Any | 
 
     Parameters
     ----------
-    bound : inspect.BoundArguments
+    bound
         The bound arguments object.
-    parameter_name : str
+    parameter_name
         The name of the parameter to get the annotation for.
 
     Returns
     -------
-    Any | None
-        The annotation of the parameter.
+    The annotation of the parameter.
     """
     param = bound.signature.parameters[parameter_name]
     return param.annotation
@@ -101,13 +100,12 @@ def path_alias(*args_to_convert: str) -> Callable[[Callable[..., T]], Callable[.
 
     Parameters
     ----------
-    *args_to_convert : str
+    *args_to_convert
         Variable-length argument list of strings representing the names of arguments to convert.
 
     Returns
     -------
-    Callable[[Callable[..., T]], Callable[..., T]]
-        A decorator function that can be applied to another function.
+    A decorator function that can be applied to another function.
     """
 
     def path_decorator(f: Callable[P, T]) -> Callable[Concatenate[str, P], T]:
@@ -138,14 +136,13 @@ def check_inplace(*args_to_check: str) -> Callable[[Callable[..., T]], Callable[
 
     Parameters
     ----------
-    *args_to_check : str
+    *args_to_check
         Variable-length argument list of strings representing the names of arguments to check, and copy in-place
         if necessary.
 
     Returns
     -------
-    Callable[[Callable[..., T]], Callable[..., T]]
-        A decorator function that can be applied to another function.
+    A decorator function that can be applied to another function.
     """
 
     def inplace_decorator(f: Callable[P, T]) -> Callable[Concatenate[str, P], T]:
@@ -186,13 +183,12 @@ def catch_warnings(func: Callable[..., T]) -> Callable[..., T]:
 
     Parameters
     ----------
-    func : Callable[..., T]
+    func
         The function to decorate.
 
     Returns
     -------
-    Callable[..., T]
-        The decorated function.
+    The decorated function.
     """
 
     @functools.wraps(func)

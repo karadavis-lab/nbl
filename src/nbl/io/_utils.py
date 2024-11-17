@@ -16,23 +16,14 @@ def _rechunk(si: xr.DataArray, chunks: tuple[int, int, int]) -> xr.DataArray:
     Parameters
     ----------
     si
-        The SpatialImage to rechunk.
+        The DataArray5 to rechunk.
     chunks
         The chunks to rechunk the SpatialImage to.
 
     Returns
     -------
-    SpatialImage
-        The rechunked SpatialImage.
+    The rechunked DataArray.
 
-    Examples
-    --------
-    .. code-block:: python
-        :linenos:
-
-        from nbl.io import _rechunk
-
-        _rechunk(si, chunks=(1, 256, 256))
     """
     si.data = si.data.rechunk(chunks)
     return si
@@ -50,22 +41,11 @@ def _parse_image(
     array_type
         The array type to use for the data.
     rechunk
-        If True, the data will be rechunked to the specified chunk size. If a tuple is provided, it will be used as the chunk size.
+        If `True`, the data will be rechunked to the specified chunk size. If a tuple is provided, it will be used as the chunk size.
 
     Returns
     -------
-    xr.DataArray
-        The parsed image.
-
-    Examples
-    --------
-    .. code-block:: python
-        :linenos:
-
-        from nbl.io import _parse_image
-
-        _parse_image(UPath("/path/to/fov/folder"), array_type="numpy", rechunk=(1, 256, 256))
-
+    The parsed image.
     """
     data: da.Array = imread(fname=f"{fov_path.as_posix()}/*.tiff", arraytype=array_type)
     channels = ns.natsorted([f.stem for f in fov_path.glob("*.tiff")])
@@ -81,7 +61,7 @@ def _parse_labels(
     label_path: UPath,
     fov_name: str,
     array_type: Literal["numpy", "cupy"],
-    rechunk: tuple[int, int, int] | None,
+    rechunk: tuple[int, int] | None,
 ) -> Mapping[str, xr.DataArray]:
     """Convert segmentation labels for a given FOV to an Xarray DataArray..
 
@@ -98,16 +78,13 @@ def _parse_labels(
 
     Returns
     -------
-    Mapping[str, xr.DataArray]
-        A mapping of label names to parsed label images.
+    A mapping of label names to parsed label images.
     """
-    # Get label suffixes
     labels: list[UPath] = ns.natsorted(label_path.glob(f"{fov_name}_*.tiff"))
-
     labels_map = {}
 
     for label_path in labels:
-        parsed_label = _convert_label_to_labels(
+        parsed_label = _convert_label_to_labels2dmodel(
             label_path=label_path, fov_name=fov_name, array_type=array_type, rechunk=rechunk
         )
 
@@ -116,7 +93,7 @@ def _parse_labels(
     return labels_map
 
 
-def _convert_label_to_labels(
+def _convert_label_to_labels2dmodel(
     label_path: UPath,
     fov_name: str,
     array_type: Literal["numpy", "cupy"],
@@ -147,6 +124,4 @@ def _convert_label_to_labels(
         transformations={fov_name: Identity()},
     )
     Labels2DModel().validate(parsed_label)
-    if rechunk:
-        parsed_label: xr.DataArray = _rechunk(parsed_label, chunks=rechunk)
-    return parsed_label
+    return _rechunk(parsed_label, chunks=rechunk) if rechunk else parsed_label

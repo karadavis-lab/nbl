@@ -203,8 +203,7 @@ def _set_table_index(x: pd.Series):
 
     Returns
     -------
-    str
-        The generated index string for the table.
+    The generated index string for the table.
     """
     return f"{first(x.region.split('_'))}_{x.instance_id}"
 
@@ -223,8 +222,7 @@ def reset_table_index[T: (sd.SpatialData, ad.AnnData, pd.DataFrame)](element: T,
 
     Returns
     -------
-    T
-        The input element with reset index.
+    The modified element with the modified table index.
 
     Raises
     ------

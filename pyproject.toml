@@ -12,11 +12,6 @@ maintainers = [
 ]
 authors = [ { name = "Sricharan Reddy Varra" } ]
 requires-python = ">=3.11"
-# optional-dependencies.torch = [
-#   "torch>=2.5.1",
-#   "lightning>=2.4.0",
-#   "torchdata>=0.9.0",
-# ]
 
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
@@ -26,57 +21,53 @@ classifiers = [
 ]
 dynamic = [ "version" ]
 dependencies = [
-  "altair[all]>=5.4.1",
-  "anatomize",
   "anndata",
-  "anndata-tools",
-  "boost-histogram>=1.5",
-  "dask[array,distributed,diagnostics]>=2024.10",
+  "annsel",
+  "cmap>=0.4",
+  "dask[array,distributed,diagnostics]>=2024",
   "dask-image>=2024.5.3",
-  "einx>=0.3",
   "fa2-modified>=0.3.10",
   "flowsom",
-  "flox>=0.9.13",
-  "great-tables>=0.13",
+  "flox>=0.9.15",
+  "great-tables>=0.14",
   "hvplot>=0.11.1",
   "ipycytoscape>=1.3.3",
   "leidenalg>=0.10.2",
   "marsilea>=0.4.3",
   "matplotlib>=3.9.2",
-  "narwhals>=1.13.2",
   "natsort>=8.4",
   "numba>=0.60",
   "numpy",
   "numpydantic[zarr,dask]>=1.6.4",
+  "palantir>=1.3.3",
   "pandas[performance,excel]>=2.2.3",
-  "polars>=1.12",
+  "phate>=1.0.11",
   "seaborn-objects-recipes>=0.1.3",
   # for debug logging (referenced from the issue template)
   "session-info",
   "sklearn-ann[annlibs]>=0.1.2",
   "spaco-release",
-  "spatialdata>=0.2.3",
+  "spatialdata>=0.2.5.post0",
   "spatialdata-plot>=0.2.7",
-  "squidpy>=1.6.1",
+  "synapseclient>=3.1.1",
   "universal-pathlib>=0.2.5",
-  "vitessce",
-  "wandb>=0.18.5",
-  "xarray[accel,parallel]<2024.10",
-  "xarray-einstats[einops,numba]>=0.8",
+  "vitessce[all]",
+  "wandb>=0.18.7",
+  "xarray[accel,parallel]",
   "xbatcher>=0.4",
 ]
 optional-dependencies.db = [
-  "faker>=30.8.2",
+  "faker>=33",
   "faker-biology>=0.6.4",
   "fsspec[git,s3]",
   "graphviz>=0.20.3",
   "ipylab>=1",
-  "lamindb[jupyter,bionty,erdiagram,zarr,aws]>=0.76.15",
+  "lamindb[jupyter,bionty,erdiagram,zarr,aws]>=0.76.16",
 ]
 optional-dependencies.dev = [
   "nb-clean>=4.0.1",
   "pre-commit",
-  "ruff>=0.7.2",
+  "ruff>=0.7.4",
   "twine>=5.1.1",
 ]
 optional-dependencies.doc = [
@@ -85,8 +76,6 @@ optional-dependencies.doc = [
   # For notebooks
   "ipykernel",
   "ipython",
-  "jupyterlite-pyodide-kernel",
-  "jupyterlite-sphinx",
   "myst-nb>=1.1.2",
   "pandas",
   "setuptools",                   # Until pybtex >0.23.0 releases: https://bitbucket.org/pybtex-devs/pybtex/issues/169/
@@ -100,14 +89,8 @@ optional-dependencies.doc = [
   "sphinxcontrib-bibtex>=2.6.3",
   "sphinxext-opengraph",
 ]
-optional-dependencies.jax = [
-  "equinox>=0.11.8",
-  "jax>=0.4.35",
-  "jax-metal>=0.1.1",
-  "jaxlib>=0.4.35",
-]
 optional-dependencies.nb = [
-  "buckaroo>=0.7.11",
+  "buckaroo>=0.7.12",
   "ipylab>=1",
   "jupyter-bokeh>=4.0.5",
   "jupyterlab",
@@ -132,13 +115,10 @@ omit = [ "**/test_*.py" ]
 [tool.uv.sources]
 flowsom = { git = "https://github.com/saeyslab/FlowSOM_Python", branch = "main" }
 spatialdata = { git = "https://github.com/srivarra/spatialdata", branch = "fsspec_bump" }
-spatialdata-plot = { git = "https://github.com/scverse/spatialdata-plot", branch = "main" }
-# napari = { git = "https://github.com/napari/napari", branch = "main" }
-# napari-spatialdata = { git = "https://github.com/scverse/napari-spatialdata", branch = "main" }
+spatialdata-plot = { git = "https://github.com/melonora/spatialdata-plot", branch = "xarray_datatree" }
 vitessce = { git = "https://github.com/vitessce/vitessce-python", branch = "main" }
 spaco-release = { git = "https://github.com/BrainStOrmics/Spaco", branch = "main" }
-anndata-tools = { git = "https://github.com/srivarra/anndata-tools", branch = "main" }
-anatomize = { git = "https://github.com/srivarra/anatomize", branch = "main" }
+annsel = { git = "https://github.com/srivarra/annsel", branch = "main" }
 
 [tool.cruft]
 skip = [

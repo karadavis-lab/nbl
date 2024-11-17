@@ -38,8 +38,7 @@ def convert_cohort(
 
     Returns
     -------
-    sd.SpatialData | None
-        The `SpatialData` object if `return_sdata` is True, otherwise None.
+    The `SpatialData` object if `return_sdata` is True, otherwise None.
 
     """
     fovs = ns.natsorted(fov_dir.glob("[!.]*/"))
@@ -71,26 +70,19 @@ def _create_sdata(
 
     Parameters
     ----------
-    fov_path : UPath
+    fov_path
         Path to the field of view (FOV) image file.
-    label_dir : UPath
+    label_dir
         Directory path containing label files.
-    array_type : Literal["numpy", "cupy"], optional
+    array_type
         The type of array to use for image and label data. Can be "numpy" or "cupy". Default is "numpy".
-    rechunk : bool | tuple[int, int, int], optional
+    rechunk
         Option to rechunk the array data. If a tuple of three integers is provided, it represents
         the chunk size. Default is False.
 
     Returns
     -------
-    sd.SpatialData
-        A SpatialData object containing the FOV image and labeled data.
-
-    Notes
-    -----
-    This function initializes an empty SpatialData object and populates it with parsed image and label data.
-    The parsing functions `_parse_image` and `_parse_labels` are assumed to handle the respective file formats
-    and convert them to the appropriate array types.
+    A SpatialData object containing the FOV image and labeled data.
     """
     fov_name = fov_path.name
 
