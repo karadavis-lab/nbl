@@ -5,7 +5,6 @@ import anndata as ad
 import numpy as np
 import scanpy as sc
 import spatialdata as sd
-from numpydantic import NDArray
 from scipy import sparse
 
 from nbl.util import _extract_layer_from_sdata, write_elements
@@ -13,9 +12,9 @@ from nbl.util import _extract_layer_from_sdata, write_elements
 
 def arcsinh_transform(
     sdata: sd.SpatialData,
-    table_names: str | Sequence[str] | Mapping[str, str] = None,
-    shift_factor: int | float | Mapping[str, int | float] = 0,
-    scale_factor: int | float | Mapping[str, int | float] = 150,
+    table_names: str | Sequence[str] | Mapping[str, str] | None = None,
+    shift_factor: int | float = 0,
+    scale_factor: int | float = 150,
     method: Literal["replace", "layer", "new table"] = "new table",
     write: bool = True,
     inplace: bool = True,
@@ -60,53 +59,41 @@ def arcsinh_transform(
         sdata = sd.SpatialData()
 
     """
-    # Normalize inputs
-    table_keys = [table_names] if isinstance(table_names, str) else table_names
-
-    if isinstance(table_names, Mapping):
-        table_keys = list(table_names.keys())
-    elif isinstance(table_names, str):
-        table_keys = [table_names]
-    elif isinstance(table_names, Sequence):
-        table_keys = table_names
+    # Normalize table_names to list
+    if table_names is None:
+        table_keys = list(sdata.tables.keys())
+    elif isinstance(table_names, str | Mapping):
+        table_keys = [table_names] if isinstance(table_names, str) else list(table_names.keys())
     else:
-        raise ValueError("`table_names` must be a string, sequence, or mapping")
+        table_keys = list(table_names)
 
     new_tables = []
-
     for table in table_keys:
-        adata: ad.AnnData = sdata.tables[table]
-        X: NDArray = adata.X.toarray() if sparse.issparse(adata.X) else adata.X
-        transformed_X = np.arcsinh(shift_factor + (X * scale_factor))
+        adata = sdata.tables[table]
+        X = adata.X.toarray() if sparse.issparse(adata.X) else adata.X
+        transformed_X = sparse.csr_matrix(np.arcsinh(shift_factor + (X * scale_factor)))
 
-        # Get new name for this table
+        new_name = (
+            table_names[table]
+            if isinstance(table_names, Mapping)
+            else f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"
+        )
+
         if method == "replace":
             adata.X = transformed_X
         elif method == "layer":
-            new_name = (
-                table_names[table]
-                if isinstance(table_names, Mapping)
-                else f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"
-            )
             adata.layers[new_name] = transformed_X
             adata.uns["layer_info"] = {new_name: {"shift_factor": shift_factor, "scale_factor": scale_factor}}
-        elif method == "new table":
+        else:  # method == "new table"
             new_table = adata.copy()
             new_table.X = transformed_X
-            new_name = (
-                table_names[table]
-                if isinstance(table_names, Mapping)
-                else f"arcsinh_shift_{shift_factor}_scale_{scale_factor}"
-            )
             new_table.uns["layer_info"] = {"X": {"shift_factor": shift_factor, "scale_factor": scale_factor}}
             sdata.tables[new_name] = new_table
             new_tables.append(new_name)
 
     if write:
-        if method in ["replace", "layer"]:
-            write_elements(sdata=sdata, elements={"tables": table_keys})
-        elif method == "new table":
-            write_elements(sdata=sdata, elements={"tables": new_tables})
+        tables_to_write = new_tables if method == "new table" else table_keys
+        write_elements(sdata=sdata, elements={"tables": tables_to_write})
 
     return None if inplace else sdata
 
@@ -240,3 +227,6 @@ def neighbors(
     if write:
         write_elements(sdata=sdata, elements={"tables": table_name})
     return None if inplace else sdata
+
+
+# def

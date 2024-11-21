@@ -1,8 +1,10 @@
+import warnings
 from collections.abc import Mapping
 from itertools import chain
 from typing import Literal
 
 import anndata as ad
+import more_itertools
 import natsort as ns
 import numpy as np
 import pandas as pd
@@ -12,7 +14,6 @@ from more_itertools import one
 from numpydantic import NDArray
 
 from nbl.util import write_elements
-from nbl.util.decorators import catch_warnings
 
 from ._utils import ScoreFunctions, _rp_stats_table_fov, _set_unique_obs_names, _strip_var_names
 
@@ -21,6 +22,7 @@ def aggregate_images_by_labels(
     sdata: sd.SpatialData,
     label_type: str,
     table_name: str = None,
+    batch_size: int = 10,
     region_key: str = "region",
     instance_key: str = "instance_id",
     agg_func: str = "sum",
@@ -65,32 +67,52 @@ def aggregate_images_by_labels(
     """
     all_coords = ns.natsorted(sdata.coordinate_systems)
 
-    filtered_sdatas = {coord: sdata.filter_by_coordinate_system(coordinate_system=coord) for coord in all_coords}
-
     @delayed
-    @catch_warnings
-    def process_fov(fov_sdata: sd.SpatialData, fov: str):
-        result = fov_sdata.aggregate(
-            values=fov,
-            by=f"{fov}_{label_type}",
-            table_name=table_name,
-            target_coordinate_system=fov,
-            agg_func=agg_func,
-            region_key=region_key,
-            instance_key=instance_key,
-        )
-        result = _set_unique_obs_names(result, fov, table_name)
-        result = _strip_var_names(result, table_name, agg_func)
-        return result
+    def process_fov_chunk(coords):
+        chunk_results = []
+        for coord in coords:
+            # Filter and process each FOV in the chunk
+            fov_sdata = sdata.filter_by_coordinate_system(coordinate_system=coord)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                result = fov_sdata.aggregate(
+                    values=coord,
+                    by=f"{coord}_{label_type}",
+                    table_name=table_name,
+                    target_coordinate_system=coord,
+                    agg_func=agg_func,
+                    region_key=region_key,
+                    instance_key=instance_key,
+                )
+                result = _set_unique_obs_names(result, coord, table_name)
+                result = _strip_var_names(result, table_name, agg_func)
+                chunk_results.append(result)
 
-    tasks = [process_fov(filtered_sdatas[coord], coord) for coord in all_coords]
+        # Concatenate the chunk results immediately to reduce memory
+        if len(chunk_results) > 1:
+            return sd.concatenate(
+                sdatas=chunk_results, region_key=region_key, instance_key=instance_key, concatenate_tables=True
+            )
+        return chunk_results[0]
 
-    optimized_tasks = delayed(lambda x: x)(tasks)
+    # Split coordinates into chunks
+    coord_chunks = list(more_itertools.chunked(all_coords, batch_size))
 
-    _sdatas = optimized_tasks.compute()
-    adata = sd.concatenate(
-        sdatas=_sdatas, region_key=region_key, instance_key=instance_key, concatenate_tables=True
-    ).tables[table_name]
+    # Create one task per chunk
+    chunk_tasks = [process_fov_chunk(chunk) for chunk in coord_chunks]
+
+    # Final concatenation of batched results
+    @delayed
+    def concatenate_chunks(chunk_results):
+        if len(chunk_results) > 1:
+            return sd.concatenate(
+                sdatas=chunk_results, region_key=region_key, instance_key=instance_key, concatenate_tables=True
+            )
+        return chunk_results[0]
+
+    # Compute the final result
+    final_result = concatenate_chunks(chunk_tasks).compute()
+    adata = final_result.tables[table_name]
 
     sdata.tables[table_name] = adata
 
