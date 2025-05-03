@@ -7,16 +7,7 @@ body:
     attributes:
       value: |
         ## Subtask Template
-        Use this template to create smaller, manageable components of major tasks.
-
-  - type: input
-    id: parent-task
-    attributes:
-      label: Parent Task
-      description: Reference to the parent major task (e.g., #42)
-      placeholder: "#"
-    validations:
-      required: true
+        Use this template to create smaller, manageable components of tasks.
 
   - type: textarea
     id: description
@@ -40,14 +31,31 @@ body:
       required: true
 
   - type: dropdown
-    id: priority
+    id: category
     attributes:
-      label: Priority
-      description: How essential is this subtask to the overall project?
+      label: Category
+      description: Select the primary category this subtask falls under
       options:
-        - Required
-        - Important
-        - Optional
+        - Data Analysis
+        - Database Management
+        - Visualization
+        - Documentation
+        - Infrastructure
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: What kind of work is this subtask?
+      options:
+        - Implementation
+        - Analysis
+        - Research
+        - Review
+        - Testing
       default: 0
     validations:
       required: true
@@ -78,19 +86,6 @@ body:
       label: Expected Output
       description: What will be delivered upon completion of this subtask
       placeholder: Describe the expected deliverables or outcomes
-    validations:
-      required: true
-
-  - type: dropdown
-    id: estimated-time
-    attributes:
-      label: Estimated Time
-      description: How long do you expect this subtask to take?
-      options:
-        - Quick (< 2 hours)
-        - Medium (2-8 hours)
-        - Extended (> 8 hours)
-      default: 0
     validations:
       required: true
 

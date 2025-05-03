@@ -1,6 +1,6 @@
 name: Task
 description: Template for high-level tasks in the spatial proteomics neuroblastoma project
-title: "[TASK]: "
+title: "[Task]: "
 labels: ["task"]
 body:
   - type: markdown
@@ -13,7 +13,7 @@ body:
     id: overview
     attributes:
       label: Task Overview
-      description: Provide a clear and concise description of the high-level task
+      description: Provide a clear and concise description of this task
       placeholder: Describe the main purpose and scope of this task
     validations:
       required: true
@@ -28,6 +28,7 @@ body:
         - Database Management (lamindb)
         - Visualization (figures, reports, vitessce)
         - Documentation
+        - Infrastructure
       default: 0
     validations:
       required: true
@@ -70,26 +71,8 @@ body:
     id: dependencies
     attributes:
       label: Dependencies
-      description: Are there other tasks that must be completed before this one can begin?
-      placeholder: List any prerequisite tasks or dependencies
-    validations:
-      required: false
-
-  - type: input
-    id: start-date
-    attributes:
-      label: Estimated Start Date
-      description: When do you plan to start this task?
-      placeholder: YYYY-MM-DD
-    validations:
-      required: false
-
-  - type: input
-    id: end-date
-    attributes:
-      label: Estimated Completion Date
-      description: When do you expect to complete this task?
-      placeholder: YYYY-MM-DD
+      description: Are there other epics or tasks that must be completed before this one can begin?
+      placeholder: List any prerequisite epics or tasks (e.g., #42)
     validations:
       required: false
 
