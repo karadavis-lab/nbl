@@ -1,10 +1,9 @@
 [build-system]
 build-backend = "hatchling.build"
-requires = [ "hatchling" ]
+requires = [ "hatch-vcs", "hatchling" ]
 
 [project]
 name = "nbl"
-version = "0.0.1"
 description = "Neuroblastoma Analysis Project"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -14,29 +13,58 @@ maintainers = [
 authors = [
   { name = "Sricharan Reddy Varra" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12,<3.13"
 classifiers = [
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
 ]
+dynamic = [ "version" ]
 dependencies = [
   "anndata",
+  "annsel>=0.1.1",
+  "boltons>=25",
+  "cmap>=0.6",
+  "dask[array,diagnostics,distributed]",
+  "dask-image>=2024.5.3",
+  "matplotlib>=3.10.1",
+  "more-itertools>=10.7",
+  "natsort>=8.4",
+  "ngff-zarr",
+  "openpyxl>=3.1.5",
+  "rapidfuzz>=3.13",
   # for debug logging (referenced from the issue template)
-  "session-info2",
+  "session-info2>=0.1.2",
+  "torch>=2.7",
+  "typer>=0.15.3",
+  "xarray[accel,parallel]",
+  "xbatcher>=0.4",
+  "xmltodict>=0.14.2",
 ]
+optional-dependencies.all = [
+  "nbl[dev,spatial,analysis,napari,nb,storage,jax,doc,test]",
+]
+optional-dependencies.analysis = [
+  "cellrank>=2.0.6",
+  "flowsom",
+  "formulaic",           # Add version if known
+  "formulaic-contrasts",
+  "moscot>=0.4",
+  "palantir>=1.3.6",
+  "phate>=1.0.11",
+  "pygpcca",
+  "scvelo",
+  "statsmodels>=0.14.4",
+]
+# Removed invalid empty optional dependency group
 optional-dependencies.dev = [
   "pre-commit",
-  "twine>=4.0.2",
 ]
 optional-dependencies.doc = [
   "docutils>=0.8,!=0.18.*,!=0.19.*",
-  "ipykernel",
-  "ipython",
+  "ipykernel",                       # Duplicated in nb, keep here for doc build env
+  "ipython",                         # Duplicated in nb, keep here for doc build env
   "myst-nb>=1.1",
-  "pandas",
+  "pandas",                          # Add version if known
   # Until pybtex >0.24.0 releases: https://bitbucket.org/pybtex-devs/pybtex/issues/169/
   "setuptools",
   "sphinx>=4",
@@ -47,6 +75,42 @@ optional-dependencies.doc = [
   "sphinxcontrib-bibtex>=1",
   "sphinxext-opengraph",
 ]
+optional-dependencies.jax = [
+  "equinox>=0.11.11",
+  "jax>=0.5",
+  "jax-metal>=0.1.1; sys_platform=='darwin'",
+  "jaxlib>=0.5",
+]
+optional-dependencies.napari = [
+  "napari[pyqt6,optional]",    # Add version if known
+  "napari-spatialdata>=0.5.6",
+  "textalloc>=1.1.8",
+]
+optional-dependencies.nb = [
+  "buckaroo>=0.9.17",
+  "hvplot>=0.11.3",
+  "ipykernel",
+  "ipylab>=1",
+  "ipython",
+  "jupyter-bokeh>=4.0.5",
+  "jupyterlab",           # Add version if known
+]
+optional-dependencies.spatial = [
+  "harpy-analysis",
+  "instanseg-torch",
+
+  "spatial-collection",
+  "spatialdata>=0.4",
+  "spatialdata-plot>=0.2.10",
+  "spatialproteomics>=0.7",
+  "squidpy",                  # Add version if known
+]
+optional-dependencies.storage = [
+  "faker>=35.2",
+  "faker-biology>=0.6.4",
+  "fsspec[git,s3]",                              # Add version if known
+  "lamindb[jupyter,bionty,erdiagram,zarr]>=1.4",
+]
 optional-dependencies.test = [
   "coverage",
   "pytest",
@@ -55,76 +119,6 @@ optional-dependencies.test = [
 urls.Documentation = "https://nbl.readthedocs.io/"
 urls.Homepage = "https://github.com/karadavis-lab/nbl"
 urls.Source = "https://github.com/karadavis-lab/nbl"
-
-[tool.hatch.envs.default]
-installer = "uv"
-features = [ "dev" ]
-
-[tool.hatch.envs.docs]
-features = [ "doc" ]
-scripts.build = "sphinx-build -M html docs docs/_build {args}"
-scripts.open = "python -m webbrowser -t docs/_build/html/index.html"
-scripts.clean = "git clean -fdX -- {args:docs}"
-
-# Test the lowest and highest supported Python versions with normal deps
-[[tool.hatch.envs.hatch-test.matrix]]
-deps = [ "stable" ]
-python = [ "3.10", "3.13" ]
-
-# Test the newest supported Python version also with pre-release deps
-[[tool.hatch.envs.hatch-test.matrix]]
-deps = [ "pre" ]
-python = [ "3.13" ]
-
-[tool.hatch.envs.hatch-test]
-features = [ "test" ]
-
-[tool.hatch.envs.hatch-test.overrides]
-# If the matrix variable `deps` is set to "pre",
-# set the environment variable `UV_PRERELEASE` to "allow".
-matrix.deps.env-vars = [
-  { key = "UV_PRERELEASE", value = "allow", if = [ "pre" ] },
-]
-
-[tool.ruff]
-line-length = 120
-src = [ "src" ]
-extend-include = [ "*.ipynb" ]
-
-format.docstring-code-format = true
-
-lint.select = [
-  "B",      # flake8-bugbear
-  "BLE",    # flake8-blind-except
-  "C4",     # flake8-comprehensions
-  "D",      # pydocstyle
-  "E",      # Error detected by Pycodestyle
-  "F",      # Errors detected by Pyflakes
-  "I",      # isort
-  "RUF100", # Report unused noqa directives
-  "TID",    # flake8-tidy-imports
-  "UP",     # pyupgrade
-  "W",      # Warning detected by Pycodestyle
-]
-lint.ignore = [
-  "B008", # Errors from function calls in argument defaults. These are fine when the result is immutable.
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D105", # __magic__ methods are often self-explanatory, allow missing docstrings
-  "D107", # Missing docstring in __init__
-  # Disable one in each pair of mutually incompatible rules
-  "D203", # We don’t want a blank line before a class docstring
-  "D213", # <> We want docstrings to start immediately after the opening triple quote
-  "D400", # first line should end with a period [Bug: doesn’t work with single-line docstrings]
-  "D401", # First line should be in imperative mood; try rephrasing
-  "E501", # line too long -> we accept long comment lines; formatter gets rid of long code lines
-  "E731", # Do not assign a lambda expression, use a def -> lambda expression assignments are convenient
-  "E741", # allow I, O, l as variable names -> I is the identity matrix
-]
-lint.per-file-ignores."*/__init__.py" = [ "F401" ]
-lint.per-file-ignores."docs/*" = [ "I" ]
-lint.per-file-ignores."tests/*" = [ "D" ]
-lint.pydocstyle.convention = "numpy"
 
 [tool.pytest.ini_options]
 testpaths = [ "tests" ]
@@ -138,6 +132,20 @@ source = [ "nbl" ]
 omit = [
   "**/test_*.py",
 ]
+
+[tool.uv.sources]
+flowsom = { git = "https://github.com/saeyslab/FlowSOM_Python", branch = "main" }
+spatialdata = { git = "https://github.com/scverse/spatialdata", branch = "main" }
+spatialdata-plot = { git = "https://github.com/scverse/spatialdata-plot", branch = "main" }
+vitessce = { git = "https://github.com/vitessce/vitessce-python", branch = "main" }
+spaco-release = { git = "https://github.com/BrainStOrmics/Spaco", branch = "main" }
+palantir = { git = "https://github.com/dpeerlab/palantir", branch = "master" }
+pygpcca = { git = "https://github.com/msmdev/pyGPCCA", branch = "main" }
+scvelo = { git = "https://github.com/theislab/scvelo", branch = "main" }
+formulaic-contrasts = { git = "https://github.com/scverse/formulaic-contrasts", branch = "main" }
+harpy-analysis = { git = "https://github.com/srivarra/harpy", branch = "ndarray/numpydantic" }
+instanseg-torch = { git = "https://github.com/instanseg/instanseg", branch = "main" }
+spatial-collection = { git = "https://github.com/srivarra/spatial-collection", branch = "main" }
 
 [tool.cruft]
 skip = [
