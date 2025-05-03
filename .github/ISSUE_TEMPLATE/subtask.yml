@@ -1,0 +1,104 @@
+name: Subtask
+description: Template for smaller subtasks in the spatial proteomics neuroblastoma project
+title: "[SUBTASK]: "
+labels: ["subtask"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Subtask Template
+        Use this template to create smaller, manageable components of major tasks.
+
+  - type: input
+    id: parent-task
+    attributes:
+      label: Parent Task
+      description: Reference to the parent major task (e.g., #42)
+      placeholder: "#"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Subtask Description
+      description: Clear description of what needs to be done in this subtask
+      placeholder: Detailed description of the specific work required
+    validations:
+      required: true
+
+  - type: textarea
+    id: objectives
+    attributes:
+      label: Specific Objectives
+      description: Concrete objectives that will be accomplished in this subtask
+      placeholder: |
+        - Implement function X
+        - Process dataset Y
+        - Generate visualization Z
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How essential is this subtask to the overall project?
+      options:
+        - Required
+        - Important
+        - Optional
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-approach
+    attributes:
+      label: Technical Approach
+      description: Brief description of the technical approach or methodology
+      placeholder: Outline the methods, algorithms, or processes you plan to use
+    validations:
+      required: false
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Required Resources
+      description: Any specific resources needed for this subtask
+      placeholder: |
+        **Data**:
+        **Packages**:
+    validations:
+      required: false
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Expected Output
+      description: What will be delivered upon completion of this subtask
+      placeholder: Describe the expected deliverables or outcomes
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimated-time
+    attributes:
+      label: Estimated Time
+      description: How long do you expect this subtask to take?
+      options:
+        - Quick (< 2 hours)
+        - Medium (2-8 hours)
+        - Extended (> 8 hours)
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any additional details or context
+      placeholder: Add any other relevant information here
+    validations:
+      required: false

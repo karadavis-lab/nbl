@@ -1,0 +1,103 @@
+name: Task
+description: Template for high-level tasks in the spatial proteomics neuroblastoma project
+title: "[TASK]: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Task Template
+        Use this template to create a high-level task for your spatial proteomics neuroblastoma project.
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Task Overview
+      description: Provide a clear and concise description of the high-level task
+      placeholder: Describe the main purpose and scope of this task
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Select the primary category this task falls under
+      options:
+        - Data Analysis (spatial analysis, pseudotime, pre-processing, QC)
+        - Database Management (lamindb)
+        - Visualization (figures, reports, vitessce)
+        - Documentation
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals
+      description: What are the primary goals of this task? What questions are you trying to answer?
+      placeholder: List the key objectives or questions this task aims to address
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Deliverables
+      description: What concrete outputs will this task produce?
+      placeholder: |
+        - Analysis report
+        - Visualization pipeline
+        - Database schema
+    validations:
+      required: true
+
+  - type: textarea
+    id: resources
+    attributes:
+      label: Resources Required
+      description: List resources needed (datasets, computational resources, packages, etc.)
+      placeholder: |
+        **Datasets**:
+        **Computational Resources**:
+        **Key Packages**:
+        **References/Papers**:
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Are there other tasks that must be completed before this one can begin?
+      placeholder: List any prerequisite tasks or dependencies
+    validations:
+      required: false
+
+  - type: input
+    id: start-date
+    attributes:
+      label: Estimated Start Date
+      description: When do you plan to start this task?
+      placeholder: YYYY-MM-DD
+    validations:
+      required: false
+
+  - type: input
+    id: end-date
+    attributes:
+      label: Estimated Completion Date
+      description: When do you expect to complete this task?
+      placeholder: YYYY-MM-DD
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any additional information, context, or concerns
+      placeholder: Add any other relevant information here
+    validations:
+      required: false
