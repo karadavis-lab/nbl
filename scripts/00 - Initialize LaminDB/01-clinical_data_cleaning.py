@@ -346,7 +346,7 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
             "Low (diagnostic)": "Low",
             "High (and one clone with low)": "High",
         },
-        "Histologic classification - INPC": {
+        "Histolgic classification - INPC": {
             "Favorable histology": "Favorable",
             "Favorbale histology, diagnosis = favorable histology": "Favorable",
             "Unfavorable histology": "Unfavorable",

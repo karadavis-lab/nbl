@@ -87,7 +87,7 @@ clinical_schema = schema = ln.Schema(
             description="Histological degree of tumor cell differentiation",
         ).save(),
         ln.Feature(
-            name="Histologic classification - INPC",
+            name="Histolgic classification - INPC",
             dtype=ln.ULabel,
             nullable=True,
             description="International Neuroblastoma Pathology Classification (INPC) category",
