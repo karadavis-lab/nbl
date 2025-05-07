@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import lamindb as ln
 import typer
 
@@ -9,8 +11,8 @@ app = typer.Typer()
 
 @app.command(no_args_is_help=True)
 def setup_lamindb(
-    project_name: str = typer.Argument(..., help="Name of the project", allow_dash=True),
-    abbreviation: str = typer.Argument(..., help="Abbreviation of the project"),
+    project_name: Annotated[str, typer.Argument(help="Name of the project", allow_dash=True)],
+    abbreviation: Annotated[str, typer.Argument(help="Abbreviation of the project", allow_dash=True)],
 ):
     """Setup a LaminDB project.
 
