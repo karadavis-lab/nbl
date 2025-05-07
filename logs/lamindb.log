@@ -1,54 +1,7 @@
-2025-05-03 15:48:00.756 | INFO     | __main__:setup_lamindb:39 - Setting up LaminDB
-2025-05-03 15:49:27.567 | INFO     | __main__:setup_lamindb:40 - Setting up LaminDB
-2025-05-03 15:49:59.624 | INFO     | __main__:setup_lamindb:24 - Setting up LaminDB
-2025-05-03 15:52:00.289 | INFO     | __main__:setup_lamindb:24 - Setting up LaminDB
-2025-05-03 17:10:59.450 | INFO     | __main__:setup_lamindb:24 - Setting up LaminDB
-2025-05-03 17:11:01.409 | INFO     | __main__:setup_lamindb:28 - LaminDB setup complete
-2025-05-07 10:17:04.311 | INFO     | __main__:setup_lamindb:26 - Setting up LaminDB
-2025-05-07 10:43:02.393 | INFO     | __main__:setup_lamindb:26 - Setting up LaminDB
-2025-05-07 11:31:44.119 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:31:44.119 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:31:44.284 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:31:44.290 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:31:44.290 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:31:44.290 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:43:26.412 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:43:26.412 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:43:26.520 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:43:26.526 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:43:26.526 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:43:26.526 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:45:20.452 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:45:20.452 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:45:20.604 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:45:20.613 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:45:20.613 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:45:20.613 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:48:40.979 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:48:40.979 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:48:41.131 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:48:41.137 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:48:41.137 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:48:41.137 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:48:42.367 | INFO     | __main__:create_sample_schema:457 - Creating clinical data schema
-2025-05-07 11:52:56.953 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:52:56.953 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:52:57.065 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:52:57.082 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:52:57.082 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:52:57.082 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:52:58.173 | INFO     | __main__:create_sample_schema:457 - Creating clinical data schema
-2025-05-07 11:54:07.645 | INFO     | __main__:clean_clinical_data:536 - Starting clinical data cleaning
-2025-05-07 11:54:07.645 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:54:07.773 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:54:07.780 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:54:07.780 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:54:07.780 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:54:08.824 | INFO     | __main__:create_sample_schema:457 - Creating clinical data schema
-2025-05-07 11:56:21.481 | INFO     | __main__:clean_clinical_data:537 - Starting clinical data cleaning
-2025-05-07 11:56:21.481 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
-2025-05-07 11:56:21.596 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
-2025-05-07 11:56:21.613 | INFO     | __main__:clean_column_names:73 - Cleaning column names
-2025-05-07 11:56:21.613 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
-2025-05-07 11:56:21.613 | INFO     | __main__:clean_data_values:103 - Cleaning data values
-2025-05-07 11:56:22.717 | INFO     | __main__:create_sample_schema:458 - Creating clinical data schema
+2025-05-07 12:04:22.399 | INFO     | __main__:clean_clinical_data:537 - Starting clinical data cleaning
+2025-05-07 12:04:22.399 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
+2025-05-07 12:04:22.528 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
+2025-05-07 12:04:22.534 | INFO     | __main__:clean_column_names:73 - Cleaning column names
+2025-05-07 12:04:22.535 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
+2025-05-07 12:04:22.535 | INFO     | __main__:clean_data_values:103 - Cleaning data values
+2025-05-07 12:04:23.659 | INFO     | __main__:create_sample_schema:458 - Creating clinical data schema

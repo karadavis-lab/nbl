@@ -509,7 +509,7 @@ def create_exploded_ulabels(clinical_data: pd.DataFrame) -> None:
             filter(lambda x: len(x) > 0, mit.collapse(clinical_data[col].cat.categories.str.split("|")))
         )
         for v in col_unique_values:
-            ln.ULabel(name=v).save()
+            ln.ULabel(name=str(v)).save()
 
 
 @app.command(no_args_is_help=True)
