@@ -397,7 +397,7 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
         "Ploidy value",
         "MKI",
         "Degree of differentiation",
-        "Histologic classification - INPC",
+        "Histolgic classification - INPC",
         "Genomics source",
         "UID",
         "FOV",
