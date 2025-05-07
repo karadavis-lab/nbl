@@ -551,11 +551,12 @@ def clean_clinical_data(
     # Create and validate schema
     schema = create_sample_schema()
     curator = ln.curators.DataFrameCurator(clinical_data, schema)
-    curator.validate()
-
-    # Add non-validated categories
-    for c in curator.cat.non_validated:
-        curator.cat.add_new_from(c)
+    try:
+        curator.validate()
+    except ln.errors.ValidationError:
+        # Add non-validated categories
+        for c in curator.cat.non_validated:
+            curator.cat.add_new_from(c)
 
     curator.validate()
     curator.save_artifact(key="clinical_data.parquet", description="Sample Level Clinical Data")

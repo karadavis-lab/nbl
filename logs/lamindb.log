@@ -45,3 +45,10 @@
 2025-05-07 11:54:07.780 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
 2025-05-07 11:54:07.780 | INFO     | __main__:clean_data_values:103 - Cleaning data values
 2025-05-07 11:54:08.824 | INFO     | __main__:create_sample_schema:457 - Creating clinical data schema
+2025-05-07 11:56:21.481 | INFO     | __main__:clean_clinical_data:537 - Starting clinical data cleaning
+2025-05-07 11:56:21.481 | INFO     | __main__:load_data:32 - Loading clinical data from data/raw/Clinical Data/FOVs_UIDv2.xlsx
+2025-05-07 11:56:21.596 | INFO     | __main__:standardize_fovs:47 - Standardizing FOV names
+2025-05-07 11:56:21.613 | INFO     | __main__:clean_column_names:73 - Cleaning column names
+2025-05-07 11:56:21.613 | INFO     | __main__:clean_paired_sequence:88 - Cleaning paired sequence
+2025-05-07 11:56:21.613 | INFO     | __main__:clean_data_values:103 - Cleaning data values
+2025-05-07 11:56:22.717 | INFO     | __main__:create_sample_schema:458 - Creating clinical data schema
