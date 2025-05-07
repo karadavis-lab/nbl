@@ -64,7 +64,6 @@ clinical_schema = schema = ln.Schema(
             dtype=ln.ULabel,
             nullable=True,
             description="International Neuroblastoma Staging System (INSS) stage",
-            coerce_dtype=True,
         ).save(),
         ln.Feature(
             name="INRG stage",

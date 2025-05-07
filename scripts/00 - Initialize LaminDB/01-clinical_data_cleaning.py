@@ -9,6 +9,7 @@ import natsort as ns
 import pandas as pd
 import rapidfuzz as rfuzz
 import typer
+from rich.console import Console
 from upath import UPath
 
 import nbl
@@ -17,6 +18,7 @@ from nbl.ln.schemas import clinical_schema
 bt.settings.organism = "human"
 logger = nbl.logger
 app = typer.Typer()
+console = Console()
 
 
 def load_data(clinical_data_path: UPath) -> pd.DataFrame:
@@ -403,8 +405,8 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
         "UID",
         "fov",
     ]
-    clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("category")
-    print(clinical_data["INRG stage"].cat.categories)
+    # First convert to string to ensure clean string values then to categorical
+    clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("string").astype("category")
 
     # Rename columns
     column_renames = {
@@ -518,6 +520,7 @@ def clean_clinical_data(
     clinical_data_path: Annotated[Path, typer.Argument(help="Path to clinical data Excel file")],
     fov_dir: Annotated[Path, typer.Argument(help="Directory containing FOV images")],
     label_dir: Annotated[Path, typer.Argument(help="Directory containing segmentation labels")],
+    sync_git_repo: Annotated[bool, typer.Option(help="Sync settings with git repository")],
 ):
     """Clean and validate clinical data for LaminDB.
 
@@ -529,9 +532,9 @@ def clean_clinical_data(
         label_dir
             Directory containing segmentation labels
     """
-    from rich.console import Console
+    if sync_git_repo:
+        nbl.sync_git_repo()
 
-    console = Console()
     ln.track(project="Neuroblastoma")
 
     console.print(f"Cleaning clinical data from {clinical_data_path}...")
