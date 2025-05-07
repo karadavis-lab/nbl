@@ -212,12 +212,13 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
     clinical_data = clinical_data.fillna({u_vma_hva: pd.NA})
 
     # Split HVA/VMA into separate columns
-    _vma_hva_df = (
+    vma_hva_df = (
         clinical_data[u_vma_hva]
         .str.split("/", expand=True)
         .rename(columns={0: "VMA (g Cr)", 1: "HVA (g Cr)"})
         .apply(pd.to_numeric, errors="coerce")
     )
+    clinical_data = clinical_data.join(vma_hva_df)
     clinical_data = clinical_data.drop(columns=[u_vma_hva])
 
     # Clean genomic data
