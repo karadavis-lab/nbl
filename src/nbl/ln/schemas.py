@@ -64,6 +64,7 @@ clinical_schema = schema = ln.Schema(
             dtype=ln.ULabel,
             nullable=True,
             description="International Neuroblastoma Staging System (INSS) stage",
+            coerce_dtype=True,
         ).save(),
         ln.Feature(
             name="INRG stage",
@@ -78,7 +79,10 @@ clinical_schema = schema = ln.Schema(
             description="Ploidy status of the tumor cells (e.g., diploid, hyperdiploid)",
         ).save(),
         ln.Feature(
-            name="MKI", dtype=ln.ULabel, nullable=True, description="Mitotic-Karyorrhectic Index (MKI) value"
+            name="MKI",
+            dtype=ln.ULabel,
+            nullable=True,
+            description="Mitotic-Karyorrhectic Index (MKI) value",
         ).save(),
         ln.Feature(
             name="Degree of differentiation",

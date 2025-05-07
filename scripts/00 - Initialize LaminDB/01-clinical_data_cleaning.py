@@ -404,6 +404,7 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
         "fov",
     ]
     clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("category")
+    print(clinical_data["INRG stage"].cat.categories)
 
     # Rename columns
     column_renames = {
