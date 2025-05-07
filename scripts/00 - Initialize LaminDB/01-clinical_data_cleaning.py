@@ -9,6 +9,7 @@ import natsort as ns
 import pandas as pd
 import rapidfuzz as rfuzz
 import typer
+from rich.console import Console
 from upath import UPath
 
 import nbl
@@ -17,6 +18,7 @@ from nbl.ln.schemas import clinical_schema
 bt.settings.organism = "human"
 logger = nbl.logger
 app = typer.Typer()
+console = Console()
 
 
 def load_data(clinical_data_path: UPath) -> pd.DataFrame:
@@ -212,12 +214,13 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
     clinical_data = clinical_data.fillna({u_vma_hva: pd.NA})
 
     # Split HVA/VMA into separate columns
-    _vma_hva_df = (
+    vma_hva_df = (
         clinical_data[u_vma_hva]
         .str.split("/", expand=True)
         .rename(columns={0: "VMA (g Cr)", 1: "HVA (g Cr)"})
         .apply(pd.to_numeric, errors="coerce")
     )
+    clinical_data = clinical_data.join(vma_hva_df)
     clinical_data = clinical_data.drop(columns=[u_vma_hva])
 
     # Clean genomic data
@@ -346,7 +349,7 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
             "Low (diagnostic)": "Low",
             "High (and one clone with low)": "High",
         },
-        "Histologic classification - INPC": {
+        "Histolgic classification - INPC": {
             "Favorable histology": "Favorable",
             "Favorbale histology, diagnosis = favorable histology": "Favorable",
             "Unfavorable histology": "Unfavorable",
@@ -397,12 +400,13 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
         "Ploidy value",
         "MKI",
         "Degree of differentiation",
-        "Histologic classification - INPC",
+        "Histolgic classification - INPC",
         "Genomics source",
         "UID",
-        "FOV",
+        "fov",
     ]
-    clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("category")
+    # First convert to string to ensure clean string values then to categorical
+    clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("string").astype("category")
 
     # Rename columns
     column_renames = {
@@ -508,7 +512,7 @@ def create_exploded_ulabels(clinical_data: pd.DataFrame) -> None:
             filter(lambda x: len(x) > 0, mit.collapse(clinical_data[col].cat.categories.str.split("|")))
         )
         for v in col_unique_values:
-            ln.ULabel(name=v).save()
+            ln.ULabel(name=str(v)).save()
 
 
 @app.command(no_args_is_help=True)
@@ -516,6 +520,7 @@ def clean_clinical_data(
     clinical_data_path: Annotated[Path, typer.Argument(help="Path to clinical data Excel file")],
     fov_dir: Annotated[Path, typer.Argument(help="Directory containing FOV images")],
     label_dir: Annotated[Path, typer.Argument(help="Directory containing segmentation labels")],
+    sync_git_repo: Annotated[bool, typer.Option(help="Sync settings with git repository")],
 ):
     """Clean and validate clinical data for LaminDB.
 
@@ -527,9 +532,9 @@ def clean_clinical_data(
         label_dir
             Directory containing segmentation labels
     """
-    from rich.console import Console
+    if sync_git_repo:
+        nbl.sync_git_repo()
 
-    console = Console()
     ln.track(project="Neuroblastoma")
 
     console.print(f"Cleaning clinical data from {clinical_data_path}...")
@@ -550,11 +555,12 @@ def clean_clinical_data(
     # Create and validate schema
     schema = create_sample_schema()
     curator = ln.curators.DataFrameCurator(clinical_data, schema)
-    curator.validate()
-
-    # Add non-validated categories
-    for c in curator.cat.non_validated:
-        curator.cat.add_new_from(c)
+    try:
+        curator.validate()
+    except ln.errors.ValidationError:
+        # Add non-validated categories
+        for c in curator.cat.non_validated:
+            curator.cat.add_new_from(c)
 
     curator.validate()
     curator.save_artifact(key="clinical_data.parquet", description="Sample Level Clinical Data")

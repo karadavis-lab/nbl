@@ -78,7 +78,10 @@ clinical_schema = schema = ln.Schema(
             description="Ploidy status of the tumor cells (e.g., diploid, hyperdiploid)",
         ).save(),
         ln.Feature(
-            name="MKI", dtype=ln.ULabel, nullable=True, description="Mitotic-Karyorrhectic Index (MKI) value"
+            name="MKI",
+            dtype=ln.ULabel,
+            nullable=True,
+            description="Mitotic-Karyorrhectic Index (MKI) value",
         ).save(),
         ln.Feature(
             name="Degree of differentiation",
@@ -87,7 +90,7 @@ clinical_schema = schema = ln.Schema(
             description="Histological degree of tumor cell differentiation",
         ).save(),
         ln.Feature(
-            name="Histologic classification - INPC",
+            name="Histolgic classification - INPC",
             dtype=ln.ULabel,
             nullable=True,
             description="International Neuroblastoma Pathology Classification (INPC) category",
