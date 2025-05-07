@@ -400,7 +400,7 @@ def clean_data_values(clinical_data: pd.DataFrame) -> pd.DataFrame:
         "Histolgic classification - INPC",
         "Genomics source",
         "UID",
-        "FOV",
+        "fov",
     ]
     clinical_data[categorical_columns] = clinical_data[categorical_columns].astype("category")
 
